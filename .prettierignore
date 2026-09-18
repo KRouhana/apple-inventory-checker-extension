@@ -1,0 +1,5 @@
+pnpm-lock.yaml
+LICENSE
+apps/extension/release/
+dist/
+node_modules/

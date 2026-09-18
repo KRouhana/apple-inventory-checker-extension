@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Your watches · Inventory Signal</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <span class="kicker">Inventory Signal</span>
+          <h1>Your watches</h1>
+        </div>
+        <button class="settings" data-open-settings type="button">
+          Settings
+        </button>
+      </header>
+      <p class="summary" data-popup-status role="status" aria-live="polite">
+        Loading watches…
+      </p>
+      <section
+        class="watch-list"
+        data-watches
+        aria-label="Saved watches"
+      ></section>
+      <footer>Apple confirms pickup availability at checkout.</footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Inventory Signal",
+  "version": "0.1.0",
+  "description": "Watch Apple pickup availability in Chrome. Get desktop or optional Telegram alerts, then open the matching product at Apple.",
+  "permissions": ["alarms", "notifications", "storage"],
+  "host_permissions": ["https://www.apple.com/*"],
+  "optional_host_permissions": ["https://api.telegram.org/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Inventory Signal",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

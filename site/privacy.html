@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="How Inventory Signal handles watch data, Apple requests, optional Telegram credentials, and website visits."
+    />
+    <meta name="theme-color" content="#173f35" />
+    <title>Privacy — Inventory Signal</title>
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="brand" href="./" aria-label="Inventory Signal home"
+        ><img src="icon.svg" width="32" height="32" alt="" />Inventory Signal</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="./#install">Get the extension</a><a href="./">Back to home</a>
+      </nav>
+    </header>
+    <main id="main" class="privacy-main wrap">
+      <p class="eyebrow">YOUR BROWSER. YOUR WATCHES.</p>
+      <h1>Privacy, plainly.</h1>
+      <p class="date">Last updated September 18, 2026</p>
+      <p class="lead">
+        Inventory Signal checks Apple pickup availability from your browser. The
+        extension has no publisher-operated monitoring server, account system,
+        or telemetry.
+      </p>
+      <div class="privacy-highlight">
+        <p>
+          <strong>At a glance:</strong> your watch data stays in local browser
+          storage. Availability requests go to Apple. If you enable personal
+          Telegram notifications, authentication and notification requests go
+          directly to Telegram.
+        </p>
+      </div>
+      <h2>What the extension stores</h2>
+      <p>
+        The extension uses local browser storage for your selected products and
+        stores, watches, settings, check history and results, and optional
+        personal Telegram connection details. These Telegram details include the
+        bot credential and chat information needed to deliver your
+        notifications. Local storage is associated with your Chrome profile.
+      </p>
+      <p>
+        Public Apple store metadata may be cached locally so the extension can
+        show store names and locations. A postal code entered for store lookup
+        is sent transiently to Apple; it is not retained as part of the watch
+        configuration.
+      </p>
+      <p>
+        Saved Telegram connection details are encrypted with AES-GCM. A
+        non-extractable WebCrypto key is stored separately in the extension’s
+        IndexedDB. This protects the stored representation; it is not an
+        operating-system credential vault and does not protect against malicious
+        extension code or a compromised browser profile. Watch settings and
+        public stock history are ordinary local browser data.
+      </p>
+      <h2>Requests to Apple</h2>
+      <p>
+        The extension sends your selected product, country, store, and lookup
+        parameters to Apple’s services to discover stores and check pickup
+        availability. Apple receives those requests, including your IP address,
+        under its own privacy practices.
+      </p>
+      <p>
+        Browser-managed Apple cookies may accompany fixed requests to Apple. The
+        extension does not read or extract those cookies. It does not ask for
+        your Apple password, payment details, or order information. When you
+        open a product at Apple, any browsing or purchase activity on Apple’s
+        website is handled by Apple.
+      </p>
+      <h2>Optional personal Telegram notifications</h2>
+      <p>
+        Connecting a bot is optional. If you choose to connect one, the
+        extension sends the bot credential directly to
+        <code>api.telegram.org</code> to authenticate requests. It checks the
+        private pairing interaction to identify the chat you authorized and
+        sends test or availability messages to that chat.
+      </p>
+      <p>
+        Your bot credential and chat details are used only for requests to
+        Telegram’s API, not sent to the publisher. Notification messages include
+        relevant watched product, store, and availability information. Telegram
+        receives and processes these requests and messages under its own privacy
+        practices.
+      </p>
+      <p>
+        A pairing link can expire before setup is finished. The saved
+        connected-bot configuration does not have that setup-link expiry.
+        Disconnecting the integration removes the extension’s saved connection;
+        revoking a bot token or removing messages already delivered in Telegram
+        must be done through Telegram.
+      </p>
+      <h2>No advertising or publisher analytics</h2>
+      <p>
+        The extension does not include advertising, publisher analytics, or
+        telemetry, and the publisher does not receive your watches or check
+        history. This website does not load third-party fonts, analytics
+        scripts, or tracking pixels.
+      </p>
+      <h2>Limited Use</h2>
+      <p>
+        Inventory Signal uses information only to provide its stated monitoring
+        and notification features. Its handling of user data complies with the
+        <a
+          href="https://developer.chrome.com/docs/webstore/program-policies/limited-use"
+          >Chrome Web Store User Data Policy, including the Limited Use
+          requirements</a
+        >. It does not sell user data or use it for advertising.
+      </p>
+      <h2>This website and GitHub</h2>
+      <p>
+        This website is hosted on GitHub Pages. GitHub may log visitor IP
+        addresses for security and operation of its hosting service. Downloads,
+        source code, and issue reports are also hosted on GitHub and are subject
+        to GitHub’s own privacy practices.
+      </p>
+      <p>
+        Public issue reports can be read by others. Do not include bot tokens,
+        chat IDs, postal codes, or other personal information in reports or
+        screenshots.
+      </p>
+      <h2>Your controls</h2>
+      <ul>
+        <li>
+          Pause watches to stop their scheduled checks. Closing Chrome or
+          sleeping your computer also stops or delays local checks.
+        </li>
+        <li>
+          Manage watches and notification settings in the extension’s settings
+          page.
+        </li>
+        <li>
+          Disconnect Telegram if you no longer want the extension to use that
+          integration.
+        </li>
+        <li>
+          Remove the extension from Chrome to delete its local extension
+          storage. This does not remove Telegram messages, data held by Apple or
+          GitHub, or files you downloaded separately.
+        </li>
+      </ul>
+      <h2>Questions and updates</h2>
+      <p>
+        For questions about this policy,
+        <a
+          href="https://github.com/KRouhana/apple-inventory-checker-extension/issues"
+          >open an issue in the project repository</a
+        >
+        without sharing personal data. This policy will be updated if the
+        extension’s data handling changes.
+      </p>
+      <p>
+        Inventory Signal is independent software and is not affiliated with
+        Apple, Google, or Telegram.
+      </p>
+    </main>
+    <footer class="site-footer wrap">
+      <div>
+        <a class="brand" href="./"
+          ><img src="icon.svg" width="28" height="28" alt="" />Inventory
+          Signal</a
+        >
+        <p>
+          Independent software. Not affiliated with or endorsed by Apple or
+          Google.
+        </p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="./">Home</a
+        ><a href="https://github.com/KRouhana/apple-inventory-checker-extension"
+          >Source on GitHub</a
+        >
+      </nav>
+    </footer>
+  </body>
+</html>

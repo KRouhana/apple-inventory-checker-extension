@@ -1,0 +1,13 @@
+packages:
+  - apps/extension
+  - packages/core
+blockExoticSubdeps: true
+engineStrict: true
+minimumReleaseAge: 10080
+saveExact: true
+strictPeerDependencies: true
+trustPolicy: no-downgrade
+onlyBuiltDependencies:
+  - esbuild
+overrides:
+  rollup: 4.62.5

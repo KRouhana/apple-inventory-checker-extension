@@ -1,0 +1,20 @@
+{
+  "name": "@inventory-signal/checkout-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs --target chrome",
+    "build:chrome": "node scripts/build.mjs --target chrome",
+    "package:chrome": "pnpm build:chrome && node scripts/package-chrome.mjs",
+    "check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "fake-indexeddb": "6.2.5",
+    "jsdom": "26.1.0",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

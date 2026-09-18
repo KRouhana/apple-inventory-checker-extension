@@ -1,0 +1,774 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-11T17:18:47.732Z",
+  "markets": [
+    {
+      "code": "ca",
+      "name": "Canada",
+      "storefrontPath": "/ca",
+      "variants": [
+        {
+          "sku": "MJR54VC/A",
+          "title": "iPhone 18 Pro 256GB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-black"
+        },
+        {
+          "sku": "MJR64VC/A",
+          "title": "iPhone 18 Pro 256GB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-silver"
+        },
+        {
+          "sku": "MJR74VC/A",
+          "title": "iPhone 18 Pro 256GB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-burgundy"
+        },
+        {
+          "sku": "MJR84VC/A",
+          "title": "iPhone 18 Pro 256GB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-glacier"
+        },
+        {
+          "sku": "MJR94VC/A",
+          "title": "iPhone 18 Pro 512GB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-black"
+        },
+        {
+          "sku": "MJRC4VC/A",
+          "title": "iPhone 18 Pro 512GB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-silver"
+        },
+        {
+          "sku": "MJRD4VC/A",
+          "title": "iPhone 18 Pro 512GB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-burgundy"
+        },
+        {
+          "sku": "MJRE4VC/A",
+          "title": "iPhone 18 Pro 512GB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-glacier"
+        },
+        {
+          "sku": "MJRF4VC/A",
+          "title": "iPhone 18 Pro 1TB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-black"
+        },
+        {
+          "sku": "MJRG4VC/A",
+          "title": "iPhone 18 Pro 1TB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-silver"
+        },
+        {
+          "sku": "MJRH4VC/A",
+          "title": "iPhone 18 Pro 1TB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-burgundy"
+        },
+        {
+          "sku": "MJRJ4VC/A",
+          "title": "iPhone 18 Pro 1TB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-glacier"
+        },
+        {
+          "sku": "MJRK4VC/A",
+          "title": "iPhone 18 Pro 2TB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-black"
+        },
+        {
+          "sku": "MJRL4VC/A",
+          "title": "iPhone 18 Pro 2TB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-silver"
+        },
+        {
+          "sku": "MJRM4VC/A",
+          "title": "iPhone 18 Pro 2TB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-burgundy"
+        },
+        {
+          "sku": "MJRN4VC/A",
+          "title": "iPhone 18 Pro 2TB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-glacier"
+        },
+        {
+          "sku": "MJX54VC/A",
+          "title": "iPhone 18 Pro Max 256GB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-black"
+        },
+        {
+          "sku": "MJX64VC/A",
+          "title": "iPhone 18 Pro Max 256GB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-silver"
+        },
+        {
+          "sku": "MJX74VC/A",
+          "title": "iPhone 18 Pro Max 256GB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-burgundy"
+        },
+        {
+          "sku": "MJX84VC/A",
+          "title": "iPhone 18 Pro Max 256GB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-glacier"
+        },
+        {
+          "sku": "MJX94VC/A",
+          "title": "iPhone 18 Pro Max 512GB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-black"
+        },
+        {
+          "sku": "MJXA4VC/A",
+          "title": "iPhone 18 Pro Max 512GB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-silver"
+        },
+        {
+          "sku": "MJXC4VC/A",
+          "title": "iPhone 18 Pro Max 512GB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-burgundy"
+        },
+        {
+          "sku": "MJXD4VC/A",
+          "title": "iPhone 18 Pro Max 512GB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-glacier"
+        },
+        {
+          "sku": "MJXE4VC/A",
+          "title": "iPhone 18 Pro Max 1TB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-black"
+        },
+        {
+          "sku": "MJXF4VC/A",
+          "title": "iPhone 18 Pro Max 1TB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-silver"
+        },
+        {
+          "sku": "MJXG4VC/A",
+          "title": "iPhone 18 Pro Max 1TB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-burgundy"
+        },
+        {
+          "sku": "MJXH4VC/A",
+          "title": "iPhone 18 Pro Max 1TB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-glacier"
+        },
+        {
+          "sku": "MJXJ4VC/A",
+          "title": "iPhone 18 Pro Max 2TB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-black"
+        },
+        {
+          "sku": "MJXK4VC/A",
+          "title": "iPhone 18 Pro Max 2TB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-silver"
+        },
+        {
+          "sku": "MJXL4VC/A",
+          "title": "iPhone 18 Pro Max 2TB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-burgundy"
+        },
+        {
+          "sku": "MJXM4VC/A",
+          "title": "iPhone 18 Pro Max 2TB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/ca/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-glacier"
+        },
+        {
+          "sku": "MK244VC/A",
+          "title": "iPhone Duo 256GB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/ca/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white"
+        },
+        {
+          "sku": "MK254VC/A",
+          "title": "iPhone Duo 256GB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/ca/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-night-sky"
+        },
+        {
+          "sku": "MK264VC/A",
+          "title": "iPhone Duo 512GB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/ca/shop/buy-iphone/iphone-duo/7.6-inch-display-512gb-star-white"
+        },
+        {
+          "sku": "MK274VC/A",
+          "title": "iPhone Duo 512GB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/ca/shop/buy-iphone/iphone-duo/7.6-inch-display-512gb-night-sky"
+        },
+        {
+          "sku": "MK284VC/A",
+          "title": "iPhone Duo 1TB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/ca/shop/buy-iphone/iphone-duo/7.6-inch-display-1tb-star-white"
+        },
+        {
+          "sku": "MK294VC/A",
+          "title": "iPhone Duo 1TB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/ca/shop/buy-iphone/iphone-duo/7.6-inch-display-1tb-night-sky"
+        },
+        {
+          "sku": "MK2A4VC/A",
+          "title": "iPhone Duo 2TB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/ca/shop/buy-iphone/iphone-duo/7.6-inch-display-2tb-star-white"
+        },
+        {
+          "sku": "MK2C4VC/A",
+          "title": "iPhone Duo 2TB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/ca/shop/buy-iphone/iphone-duo/7.6-inch-display-2tb-night-sky"
+        }
+      ],
+      "stores": [
+        {
+          "storeNumber": "R121",
+          "name": "Apple Eaton Centre",
+          "city": "Toronto",
+          "region": "Ontario",
+          "pollLocation": "M5B 2H1"
+        }
+      ]
+    },
+    {
+      "code": "uk",
+      "name": "United Kingdom",
+      "storefrontPath": "/uk",
+      "variants": [
+        {
+          "sku": "MJRP4QN/A",
+          "title": "iPhone 18 Pro 256GB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-black"
+        },
+        {
+          "sku": "MJRQ4QN/A",
+          "title": "iPhone 18 Pro 256GB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-silver"
+        },
+        {
+          "sku": "MJRR4QN/A",
+          "title": "iPhone 18 Pro 256GB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-burgundy"
+        },
+        {
+          "sku": "MJRT4QN/A",
+          "title": "iPhone 18 Pro 256GB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-glacier"
+        },
+        {
+          "sku": "MJRU4QN/A",
+          "title": "iPhone 18 Pro 512GB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-black"
+        },
+        {
+          "sku": "MJRV4QN/A",
+          "title": "iPhone 18 Pro 512GB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-silver"
+        },
+        {
+          "sku": "MJRW4QN/A",
+          "title": "iPhone 18 Pro 512GB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-burgundy"
+        },
+        {
+          "sku": "MJRX4QN/A",
+          "title": "iPhone 18 Pro 512GB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-glacier"
+        },
+        {
+          "sku": "MJRY4QN/A",
+          "title": "iPhone 18 Pro 1TB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-black"
+        },
+        {
+          "sku": "MJT04QN/A",
+          "title": "iPhone 18 Pro 1TB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-silver"
+        },
+        {
+          "sku": "MJT14QN/A",
+          "title": "iPhone 18 Pro 1TB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-burgundy"
+        },
+        {
+          "sku": "MJT24QN/A",
+          "title": "iPhone 18 Pro 1TB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-glacier"
+        },
+        {
+          "sku": "MJT34QN/A",
+          "title": "iPhone 18 Pro 2TB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-black"
+        },
+        {
+          "sku": "MJT44QN/A",
+          "title": "iPhone 18 Pro 2TB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-silver"
+        },
+        {
+          "sku": "MJT54QN/A",
+          "title": "iPhone 18 Pro 2TB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-burgundy"
+        },
+        {
+          "sku": "MJT64QN/A",
+          "title": "iPhone 18 Pro 2TB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-glacier"
+        },
+        {
+          "sku": "MJXN4QN/A",
+          "title": "iPhone 18 Pro Max 256GB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-black"
+        },
+        {
+          "sku": "MJXP4QN/A",
+          "title": "iPhone 18 Pro Max 256GB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-silver"
+        },
+        {
+          "sku": "MJXQ4QN/A",
+          "title": "iPhone 18 Pro Max 256GB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-burgundy"
+        },
+        {
+          "sku": "MJXR4QN/A",
+          "title": "iPhone 18 Pro Max 256GB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-glacier"
+        },
+        {
+          "sku": "MJXT4QN/A",
+          "title": "iPhone 18 Pro Max 512GB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-black"
+        },
+        {
+          "sku": "MJXU4QN/A",
+          "title": "iPhone 18 Pro Max 512GB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-silver"
+        },
+        {
+          "sku": "MJXV4QN/A",
+          "title": "iPhone 18 Pro Max 512GB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-burgundy"
+        },
+        {
+          "sku": "MJXW4QN/A",
+          "title": "iPhone 18 Pro Max 512GB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-glacier"
+        },
+        {
+          "sku": "MJXX4QN/A",
+          "title": "iPhone 18 Pro Max 1TB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-black"
+        },
+        {
+          "sku": "MJXY4QN/A",
+          "title": "iPhone 18 Pro Max 1TB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-silver"
+        },
+        {
+          "sku": "MJY04QN/A",
+          "title": "iPhone 18 Pro Max 1TB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-burgundy"
+        },
+        {
+          "sku": "MJY14QN/A",
+          "title": "iPhone 18 Pro Max 1TB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-glacier"
+        },
+        {
+          "sku": "MJY24QN/A",
+          "title": "iPhone 18 Pro Max 2TB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-black"
+        },
+        {
+          "sku": "MJY34QN/A",
+          "title": "iPhone 18 Pro Max 2TB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-silver"
+        },
+        {
+          "sku": "MJY44QN/A",
+          "title": "iPhone 18 Pro Max 2TB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-burgundy"
+        },
+        {
+          "sku": "MJY54QN/A",
+          "title": "iPhone 18 Pro Max 2TB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/uk/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-glacier"
+        },
+        {
+          "sku": "MK2D4QN/A",
+          "title": "iPhone Duo 256GB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/uk/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white"
+        },
+        {
+          "sku": "MK2E4QN/A",
+          "title": "iPhone Duo 256GB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/uk/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-night-sky"
+        },
+        {
+          "sku": "MK2F4QN/A",
+          "title": "iPhone Duo 512GB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/uk/shop/buy-iphone/iphone-duo/7.6-inch-display-512gb-star-white"
+        },
+        {
+          "sku": "MK2G4QN/A",
+          "title": "iPhone Duo 512GB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/uk/shop/buy-iphone/iphone-duo/7.6-inch-display-512gb-night-sky"
+        },
+        {
+          "sku": "MK2H4QN/A",
+          "title": "iPhone Duo 1TB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/uk/shop/buy-iphone/iphone-duo/7.6-inch-display-1tb-star-white"
+        },
+        {
+          "sku": "MK2J4QN/A",
+          "title": "iPhone Duo 1TB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/uk/shop/buy-iphone/iphone-duo/7.6-inch-display-1tb-night-sky"
+        },
+        {
+          "sku": "MK2K4QN/A",
+          "title": "iPhone Duo 2TB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/uk/shop/buy-iphone/iphone-duo/7.6-inch-display-2tb-star-white"
+        },
+        {
+          "sku": "MK2L4QN/A",
+          "title": "iPhone Duo 2TB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/uk/shop/buy-iphone/iphone-duo/7.6-inch-display-2tb-night-sky"
+        }
+      ],
+      "stores": [
+        {
+          "storeNumber": "R092",
+          "name": "Apple Regent Street",
+          "city": "London",
+          "region": "Central London",
+          "pollLocation": "W1B 2EL"
+        }
+      ]
+    },
+    {
+      "code": "us",
+      "name": "United States",
+      "storefrontPath": "",
+      "variants": [
+        {
+          "sku": "MJQ34LL/A",
+          "title": "iPhone 18 Pro 256GB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-black-unlocked"
+        },
+        {
+          "sku": "MJQ44LL/A",
+          "title": "iPhone 18 Pro 256GB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-silver-unlocked"
+        },
+        {
+          "sku": "MJQ54LL/A",
+          "title": "iPhone 18 Pro 256GB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-burgundy-unlocked"
+        },
+        {
+          "sku": "MJQ64LL/A",
+          "title": "iPhone 18 Pro 256GB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-256gb-glacier-unlocked"
+        },
+        {
+          "sku": "MJQ74LL/A",
+          "title": "iPhone 18 Pro 512GB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-black-unlocked"
+        },
+        {
+          "sku": "MJQ84LL/A",
+          "title": "iPhone 18 Pro 512GB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-silver-unlocked"
+        },
+        {
+          "sku": "MJQ94LL/A",
+          "title": "iPhone 18 Pro 512GB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-burgundy-unlocked"
+        },
+        {
+          "sku": "MJQA4LL/A",
+          "title": "iPhone 18 Pro 512GB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-512gb-glacier-unlocked"
+        },
+        {
+          "sku": "MJQC4LL/A",
+          "title": "iPhone 18 Pro 1TB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-black-unlocked"
+        },
+        {
+          "sku": "MJQD4LL/A",
+          "title": "iPhone 18 Pro 1TB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-silver-unlocked"
+        },
+        {
+          "sku": "MJQE4LL/A",
+          "title": "iPhone 18 Pro 1TB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-burgundy-unlocked"
+        },
+        {
+          "sku": "MJQF4LL/A",
+          "title": "iPhone 18 Pro 1TB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-1tb-glacier-unlocked"
+        },
+        {
+          "sku": "MJQG4LL/A",
+          "title": "iPhone 18 Pro 2TB Black",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-black-unlocked"
+        },
+        {
+          "sku": "MJQH4LL/A",
+          "title": "iPhone 18 Pro 2TB Silver",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-silver-unlocked"
+        },
+        {
+          "sku": "MJQJ4LL/A",
+          "title": "iPhone 18 Pro 2TB Burgundy",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-burgundy-unlocked"
+        },
+        {
+          "sku": "MJQK4LL/A",
+          "title": "iPhone 18 Pro 2TB Glacier",
+          "familySlug": "iphone-18-pro",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.3-inch-display-2tb-glacier-unlocked"
+        },
+        {
+          "sku": "MJW44LL/A",
+          "title": "iPhone 18 Pro Max 256GB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-black-unlocked"
+        },
+        {
+          "sku": "MJW54LL/A",
+          "title": "iPhone 18 Pro Max 256GB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-silver-unlocked"
+        },
+        {
+          "sku": "MJW64LL/A",
+          "title": "iPhone 18 Pro Max 256GB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-burgundy-unlocked"
+        },
+        {
+          "sku": "MJW74LL/A",
+          "title": "iPhone 18 Pro Max 256GB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-256gb-glacier-unlocked"
+        },
+        {
+          "sku": "MJW84LL/A",
+          "title": "iPhone 18 Pro Max 512GB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-black-unlocked"
+        },
+        {
+          "sku": "MJW94LL/A",
+          "title": "iPhone 18 Pro Max 512GB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-silver-unlocked"
+        },
+        {
+          "sku": "MJWA4LL/A",
+          "title": "iPhone 18 Pro Max 512GB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-burgundy-unlocked"
+        },
+        {
+          "sku": "MJWC4LL/A",
+          "title": "iPhone 18 Pro Max 512GB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-512gb-glacier-unlocked"
+        },
+        {
+          "sku": "MJWD4LL/A",
+          "title": "iPhone 18 Pro Max 1TB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-black-unlocked"
+        },
+        {
+          "sku": "MJWE4LL/A",
+          "title": "iPhone 18 Pro Max 1TB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-silver-unlocked"
+        },
+        {
+          "sku": "MJWF4LL/A",
+          "title": "iPhone 18 Pro Max 1TB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-burgundy-unlocked"
+        },
+        {
+          "sku": "MJWG4LL/A",
+          "title": "iPhone 18 Pro Max 1TB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-1tb-glacier-unlocked"
+        },
+        {
+          "sku": "MJWH4LL/A",
+          "title": "iPhone 18 Pro Max 2TB Black",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-black-unlocked"
+        },
+        {
+          "sku": "MJWJ4LL/A",
+          "title": "iPhone 18 Pro Max 2TB Silver",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-silver-unlocked"
+        },
+        {
+          "sku": "MJWK4LL/A",
+          "title": "iPhone 18 Pro Max 2TB Burgundy",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-burgundy-unlocked"
+        },
+        {
+          "sku": "MJWL4LL/A",
+          "title": "iPhone 18 Pro Max 2TB Glacier",
+          "familySlug": "iphone-18-pro-max",
+          "buyPath": "/shop/buy-iphone/iphone-18-pro/6.9-inch-display-2tb-glacier-unlocked"
+        },
+        {
+          "sku": "MK1E4LL/A",
+          "title": "iPhone Duo 256GB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white-unlocked"
+        },
+        {
+          "sku": "MK1F4LL/A",
+          "title": "iPhone Duo 256GB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-night-sky-unlocked"
+        },
+        {
+          "sku": "MK1G4LL/A",
+          "title": "iPhone Duo 512GB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/shop/buy-iphone/iphone-duo/7.6-inch-display-512gb-star-white-unlocked"
+        },
+        {
+          "sku": "MK1H4LL/A",
+          "title": "iPhone Duo 512GB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/shop/buy-iphone/iphone-duo/7.6-inch-display-512gb-night-sky-unlocked"
+        },
+        {
+          "sku": "MK1J4LL/A",
+          "title": "iPhone Duo 1TB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/shop/buy-iphone/iphone-duo/7.6-inch-display-1tb-star-white-unlocked"
+        },
+        {
+          "sku": "MK1L4LL/A",
+          "title": "iPhone Duo 1TB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/shop/buy-iphone/iphone-duo/7.6-inch-display-1tb-night-sky-unlocked"
+        },
+        {
+          "sku": "MK1Q4LL/A",
+          "title": "iPhone Duo 2TB Star White",
+          "familySlug": "iphone-duo",
+          "buyPath": "/shop/buy-iphone/iphone-duo/7.6-inch-display-2tb-star-white-unlocked"
+        },
+        {
+          "sku": "MK1R4LL/A",
+          "title": "iPhone Duo 2TB Night Sky",
+          "familySlug": "iphone-duo",
+          "buyPath": "/shop/buy-iphone/iphone-duo/7.6-inch-display-2tb-night-sky-unlocked"
+        }
+      ],
+      "stores": [
+        {
+          "storeNumber": "R095",
+          "name": "Apple Fifth Avenue",
+          "city": "New York",
+          "region": "New York",
+          "pollLocation": "10153"
+        }
+      ]
+    }
+  ]
+}
