@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Inventory Signal",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Watch Apple pickup availability in Chrome. Get desktop or optional Telegram alerts, then open the matching product at Apple.",
   "permissions": ["alarms", "notifications", "storage"],
   "host_permissions": ["https://www.apple.com/*"],

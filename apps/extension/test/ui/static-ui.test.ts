@@ -19,6 +19,7 @@ describe("packaged local UI shell", () => {
     expect(viewOrigins).toEqual([
       "https://t.me",
       "https://krouhana.github.io/apple-inventory-checker-extension/privacy.html",
+      "https://core.telegram.org/bots/tutorial#obtain-your-bot-token",
       "https://t.me/${status.botUsername}",
     ]);
     expect(view).not.toMatch(/localhost/i);

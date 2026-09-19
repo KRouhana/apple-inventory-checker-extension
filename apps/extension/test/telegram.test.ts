@@ -1029,3 +1029,88 @@ describe("simple setup cancellation", () => {
     );
   });
 });
+
+describe("Pair then Test", () => {
+  const updates = (ids: number[]) =>
+    response({
+      ok: true,
+      result: ids.map((id) => ({
+        message: { text: "hello", chat: { id, type: "private" } },
+      })),
+    });
+  it("pairs from a token without sending; sends only when Test is requested", async () => {
+    const h = harness({
+      responses: [
+        ...connectedResponses(),
+        updates([12345]),
+        response({ ok: true, result: { message_id: 1 } }),
+      ],
+    });
+    await expect(h.controller.pairToken!(token)).resolves.toEqual({
+      kind: "connected",
+      botUsername: "MyPersonalBot",
+    });
+    expect(h.calls.some((call) => call.url.includes("sendMessage"))).toBe(
+      false,
+    );
+    expect(
+      (await harness({ savedValues: h.values }).controller.status()).kind,
+    ).toBe("connected");
+    await h.controller.sendTest();
+    expect(
+      h.calls.filter((call) => call.url.includes("sendMessage")),
+    ).toHaveLength(1);
+  });
+  it.each([
+    [[], "chat_not_found"],
+    [[12345, 67890], "chat_ambiguous"],
+  ] as const)(
+    "retains the token on discovery failure %j and retries Pair without sending",
+    async (ids, code) => {
+      const h = harness({
+        responses: [
+          ...connectedResponses(),
+          updates([...ids]),
+          updates([12345]),
+        ],
+      });
+      await expect(h.controller.pairToken!(token)).rejects.toMatchObject({
+        code,
+      });
+      expect((await h.controller.status()).kind).toBe("token_saved");
+      await expect(h.controller.pairSavedToken!()).resolves.toMatchObject({
+        kind: "connected",
+      });
+      expect(h.calls.some((call) => call.url.includes("sendMessage"))).toBe(
+        false,
+      );
+    },
+  );
+  it("disconnect during Pair prevents stale discovery from restoring credentials", async () => {
+    let finish!: (value: TelegramResponse) => void;
+    let started!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const h = harness({
+      responses: connectedResponses(),
+      fetchOverride: (url) => {
+        if (url.includes("getUpdates")) {
+          started();
+          return new Promise<TelegramResponse>((resolve) => {
+            finish = resolve;
+          });
+        }
+      },
+    });
+    const pairing = h.controller.pairToken!(token);
+    const rejected = expect(pairing).rejects.toMatchObject({
+      code: "cancelled",
+    });
+    await pending;
+    await h.controller.disconnect();
+    finish(updates([12345]));
+    await rejected;
+    expect(h.values.size).toBe(0);
+  });
+});

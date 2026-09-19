@@ -237,16 +237,16 @@ describe("mounted Personal Telegram setup UI", () => {
     mounted.destroy();
   });
 
-  it("offers a test for a saved token without pairing and enables alerts only after success", async () => {
+  it("pairs a saved token without sending and shows Test only after connection", async () => {
     let status: PublicTelegramStatus = {
       kind: "token_saved",
       botUsername: "SyntheticBot",
     };
-    const sendTest = vi.fn(async () => {
+    const confirmPairing = vi.fn(async () => {
       status = { kind: "connected", botUsername: "SyntheticBot" };
       return status;
     });
-    const confirmPairing = vi.fn(async () => status);
+    const sendTest = vi.fn(async () => status);
     const root = document.createElement("div");
     const mounted = mountLocalMonitorUi(
       root,
@@ -270,10 +270,18 @@ describe("mounted Personal Telegram setup UI", () => {
     expect(confirmPairing).not.toHaveBeenCalled();
     expect(sendTest).not.toHaveBeenCalled();
     const button = root.querySelector<HTMLButtonElement>(
-      "[data-action=telegram-test]",
+      "[data-action=telegram-pair]",
     )!;
     expect(button.disabled).toBe(false);
     button.click();
+    await flush();
+    expect(confirmPairing).toHaveBeenCalledTimes(1);
+    expect(sendTest).not.toHaveBeenCalled();
+    const test = root.querySelector<HTMLButtonElement>(
+      "[data-action=telegram-test]",
+    )!;
+    expect(test.textContent).toBe("Test");
+    test.click();
     await flush();
     expect(sendTest).toHaveBeenCalledTimes(1);
     expect(root.textContent).toContain("Connected to @SyntheticBot");
@@ -283,7 +291,7 @@ describe("mounted Personal Telegram setup UI", () => {
     mounted.destroy();
   });
 
-  it("keeps the token saved and offers retry after a failed test", async () => {
+  it("keeps the token saved and offers retry after failed pairing", async () => {
     const status = {
       kind: "token_saved",
       botUsername: "SyntheticBot",
@@ -294,8 +302,8 @@ describe("mounted Personal Telegram setup UI", () => {
       makeController({
         status: vi.fn(async () => status),
         startPairing: vi.fn(async () => status),
-        confirmPairing: vi.fn(async () => status),
-        sendTest: vi.fn(async () => {
+        sendTest: vi.fn(async () => status),
+        confirmPairing: vi.fn(async () => {
           throw new Error(
             "No private chat was found. Send any message to your bot, then try again.",
           );
@@ -305,12 +313,12 @@ describe("mounted Personal Telegram setup UI", () => {
     );
     await mounted.refresh();
     root
-      .querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
+      .querySelector<HTMLButtonElement>("[data-action=telegram-pair]")!
       .click();
     await flush();
     expect(root.textContent).toContain("No private chat was found");
     expect(
-      root.querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
+      root.querySelector<HTMLButtonElement>("[data-action=telegram-pair]")!
         .disabled,
     ).toBe(false);
     expect(
@@ -364,11 +372,11 @@ describe("mounted Personal Telegram setup UI", () => {
     const controller = makeController({
       status: vi.fn(async () => status),
       startPairing: vi.fn(async () => status),
-      sendTest: vi.fn(async () => {
+      confirmPairing: vi.fn(async () => {
         status = { kind: "connected", botUsername: "SyntheticBot" };
         return status;
       }),
-      confirmPairing: vi.fn(async () => status),
+      sendTest: vi.fn(async () => status),
       disconnect: vi.fn(async () => status),
     });
     const root = document.createElement("div");
@@ -384,7 +392,7 @@ describe("mounted Personal Telegram setup UI", () => {
     const olderRefresh = mounted.refresh();
     await flush();
     root
-      .querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
+      .querySelector<HTMLButtonElement>("[data-action=telegram-pair]")!
       .click();
     await flush();
     finish(snapshot);
@@ -1215,6 +1223,15 @@ describe("mounted Personal Telegram setup UI", () => {
       { requestTelegramHostPermission: permission },
     );
     await mounted.refresh();
+    const guide = root.querySelector<HTMLAnchorElement>(
+      'a[href="https://core.telegram.org/bots/tutorial#obtain-your-bot-token"]',
+    );
+    expect(guide?.textContent).toContain("Telegram’s official guide");
+    expect(guide?.rel).toBe("noopener noreferrer");
+    expect(
+      root.querySelector<HTMLButtonElement>("[data-action=telegram-start]")
+        ?.textContent,
+    ).toBe("Pair");
     const token = root.querySelector<HTMLInputElement>(
       "[data-telegram-token]",
     )!;
@@ -1342,7 +1359,7 @@ describe("mounted Personal Telegram setup UI", () => {
     mounted.destroy();
   });
 
-  it("preserves an in-progress watch draft through token setup and test delivery", async () => {
+  it("preserves an in-progress watch draft through pairing", async () => {
     let status: PublicTelegramStatus = { kind: "disconnected" };
     const pairing = {
       kind: "pairing" as const,
@@ -1362,11 +1379,11 @@ describe("mounted Personal Telegram setup UI", () => {
           status = pairing;
           return status;
         }),
-        sendTest: vi.fn(async () => {
+        confirmPairing: vi.fn(async () => {
           status = connected;
           return status;
         }),
-        confirmPairing: vi.fn(async () => status),
+        sendTest: vi.fn(async () => status),
         disconnect: vi.fn(async () => status),
       }),
       { requestTelegramHostPermission: vi.fn(async () => true) },
@@ -1431,7 +1448,7 @@ describe("mounted Personal Telegram setup UI", () => {
       root.querySelector<HTMLInputElement>("input[name=desktop]")!.checked,
     ).toBe(false);
     root
-      .querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
+      .querySelector<HTMLButtonElement>("[data-action=telegram-pair]")!
       .click();
     await flush(16);
 

@@ -49,6 +49,14 @@ function dependencies(): PersonalTelegramRuntimeDependencies & {
     disableTelegramWatches: vi.fn(async () => undefined),
     controller: {
       status: vi.fn(async () => ({ kind: "disconnected" as const })),
+      pairToken: vi.fn(async (token: string) => {
+        calls.start.push(token);
+        return { kind: "connected" as const, botUsername: "SafeBot" };
+      }),
+      pairSavedToken: vi.fn(async () => ({
+        kind: "connected" as const,
+        botUsername: "SafeBot",
+      })),
       saveToken: vi.fn(async (token: string) => {
         calls.start.push(token);
         return { kind: "token_saved" as const, botUsername: "SafeBot" };
@@ -88,7 +96,7 @@ describe("Personal Telegram setup protocol", () => {
     const clean = `12345:${"a".repeat(20)}`;
     await expect(
       controller.startPairing(`  ${clean}\n`),
-    ).resolves.toMatchObject({ kind: "token_saved" });
+    ).resolves.toMatchObject({ kind: "connected" });
     expect(deps.calls.start).toEqual([clean]);
     const count = vi.mocked(runtime.sendMessage).mock.calls.length;
     for (const bad of [
@@ -109,14 +117,14 @@ describe("Personal Telegram setup protocol", () => {
     const secret = `12345:${"s".repeat(20)}`;
     const messages: Readonly<Record<PublicTelegramError, string>> = {
       chat_not_found:
-        "No private chat was found. Open your bot, send it any message once, then click Send test again.",
+        "No private chat was found. Open your bot, send it any message once, then click Pair again.",
       chat_ambiguous:
         "This bot has messages from more than one private chat. Use a dedicated personal bot so alerts cannot go to the wrong person.",
       cancelled: "The Personal Telegram request was canceled. Try again.",
       delivery_failed:
         "The Telegram request failed. Check your connection and bot access, then try again.",
       invalid_token_format:
-        "Paste the complete bot token into the Bot token field, then select Save token. The field is cleared after each attempt.",
+        "Paste the complete bot token into the Bot token field, then select Pair. The field is cleared after each attempt.",
       token_rejected:
         "Telegram rejected this bot token. Check that you pasted the current token for your bot, then try again.",
       bot_validation_failed:
@@ -124,15 +132,14 @@ describe("Personal Telegram setup protocol", () => {
       webhook_check_failed:
         "The bot identity was verified, but Telegram did not return a valid webhook configuration. Setup stopped. Try again later.",
       invalid_configuration:
-        "The bot configuration was not accepted. Save a valid bot token and try again.",
+        "The bot configuration was not accepted. Paste a valid bot token and select Pair.",
       invalid_event:
         "The Personal Telegram alert could not be sent. Try again.",
       not_connected: "Connect Personal Telegram before sending a test alert.",
       pairing_ambiguous:
         "Multiple private chats were found. Use a dedicated personal bot.",
-      pairing_expired:
-        "Save your bot token again, then send a test notification.",
-      pairing_pending: "Save your bot token, then send a test notification.",
+      pairing_expired: "Paste your bot token again and select Pair.",
+      pairing_pending: "Paste your bot token and select Pair.",
       permission_required:
         "Telegram permission is required before setup can continue.",
       storage_unavailable:

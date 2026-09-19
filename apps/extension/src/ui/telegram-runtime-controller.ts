@@ -24,9 +24,9 @@ function publicErrorMessage(code: PublicTelegramError): string {
     case "webhook_conflict":
       return "This bot is already connected to a webhook service. Use a dedicated personal bot.";
     case "pairing_pending":
-      return "Save your bot token, then send a test notification.";
+      return "Paste your bot token and select Pair.";
     case "pairing_expired":
-      return "Save your bot token again, then send a test notification.";
+      return "Paste your bot token again and select Pair.";
     case "pairing_ambiguous":
       return "Multiple private chats were found. Use a dedicated personal bot.";
     case "delivery_failed":
@@ -38,7 +38,7 @@ function publicErrorMessage(code: PublicTelegramError): string {
     case "storage_unavailable":
       return "Personal Telegram settings could not be saved in this browser. Try again.";
     case "invalid_token_format":
-      return "Paste the complete bot token into the Bot token field, then select Save token. The field is cleared after each attempt.";
+      return "Paste the complete bot token into the Bot token field, then select Pair. The field is cleared after each attempt.";
     case "token_rejected":
       return "Telegram rejected this bot token. Check that you pasted the current token for your bot, then try again.";
     case "bot_validation_failed":
@@ -46,9 +46,9 @@ function publicErrorMessage(code: PublicTelegramError): string {
     case "webhook_check_failed":
       return "The bot identity was verified, but Telegram did not return a valid webhook configuration. Setup stopped. Try again later.";
     case "invalid_configuration":
-      return "The bot configuration was not accepted. Save a valid bot token and try again.";
+      return "The bot configuration was not accepted. Paste a valid bot token and select Pair.";
     case "chat_not_found":
-      return "No private chat was found. Open your bot, send it any message once, then click Send test again.";
+      return "No private chat was found. Open your bot, send it any message once, then click Pair again.";
     case "chat_ambiguous":
       return "This bot has messages from more than one private chat. Use a dedicated personal bot so alerts cannot go to the wrong person.";
     case "not_connected":
@@ -242,14 +242,14 @@ export function createRuntimePersonalTelegramController(
         );
       return request(runtime, {
         protocol: PERSONAL_TELEGRAM_PROTOCOL,
-        type: "SAVE_TOKEN",
+        type: "PAIR_TOKEN",
         botToken,
       });
     },
     confirmPairing: () =>
       request(runtime, {
         protocol: PERSONAL_TELEGRAM_PROTOCOL,
-        type: "CONFIRM_PAIRING",
+        type: "PAIR_SAVED_TOKEN",
       }),
     sendTest: () =>
       request(runtime, {
