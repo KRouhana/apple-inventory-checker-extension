@@ -24,6 +24,11 @@ header {
   justify-content: space-between;
   gap: 12px;
 }
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .kicker {
   font-size: 10px;
   font-weight: 750;

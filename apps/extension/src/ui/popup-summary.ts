@@ -3,6 +3,7 @@ import type { ExtensionRuntime } from "../platform/api.js";
 import {
   POPUP_MONITOR_SUMMARY_PROTOCOL,
   PopupMonitorSummarySchema,
+  PopupRefreshResultSchema,
   type PopupMonitorSummary,
   type PopupWatchItem,
 } from "../platform/popup-summary-messages.js";
@@ -10,7 +11,7 @@ import {
 export class PopupMonitorSummaryError extends Error {}
 async function request(
   runtime: ExtensionRuntime,
-  type: "GET_SUMMARY" | "OPEN_AVAILABLE",
+  type: "GET_SUMMARY" | "OPEN_AVAILABLE" | "REFRESH",
   fields: Record<string, string> = {},
   timeoutMs = 2500,
 ): Promise<unknown> {
@@ -80,17 +81,20 @@ function checkedAt(value: string | null): string {
 export async function mountPopupMonitorSummary(
   document: Document,
   runtime: ExtensionRuntime,
-  options: { openSettings?: () => void; timeoutMs?: number } = {},
+  options: {
+    openSettings?: () => void;
+    timeoutMs?: number;
+    summary?: PopupMonitorSummary;
+  } = {},
 ): Promise<void> {
   const list = document.querySelector<HTMLElement>("[data-watches]");
   const status = document.querySelector<HTMLElement>("[data-popup-status]");
   if (!list || !status) return;
   status.textContent = "Loading watches…";
   try {
-    const summary = await requestPopupMonitorSummary(
-      runtime,
-      options.timeoutMs,
-    );
+    const summary =
+      options.summary ??
+      (await requestPopupMonitorSummary(runtime, options.timeoutMs));
     list.replaceChildren();
     if (summary.watches.length === 0) {
       status.textContent = "Let’s set up your first watch.";
@@ -190,4 +194,67 @@ export async function mountPopupMonitorSummary(
     status.textContent =
       "Could not load watches. Open Settings to check the monitor.";
   }
+}
+
+/** A click refreshes inventory; opening the popup only reads saved results. */
+export function initializePopupMonitor(
+  document: Document,
+  runtime: ExtensionRuntime,
+  options: { openSettings?: () => void; timeoutMs?: number } = {},
+): Promise<void> {
+  const button = document.querySelector<HTMLButtonElement>("[data-refresh]");
+  const list = document.querySelector<HTMLElement>("[data-watches]");
+  const status = document.querySelector<HTMLElement>("[data-popup-status]");
+  let busy = false;
+  const load = async (refreshInventory: boolean) => {
+    if (busy) return;
+    busy = true;
+    if (button) {
+      button.disabled = true;
+      button.textContent = refreshInventory ? "Refreshing…" : "Refresh";
+    }
+    list?.setAttribute("aria-busy", "true");
+    try {
+      if (!refreshInventory) {
+        await mountPopupMonitorSummary(document, runtime, options);
+        return;
+      }
+      if (status) status.textContent = "Checking enabled watches…";
+      const result = PopupRefreshResultSchema.safeParse(
+        await request(runtime, "REFRESH", {}, options.timeoutMs ?? 30_000),
+      );
+      if (!result.success)
+        throw new PopupMonitorSummaryError("Invalid refresh result");
+      await mountPopupMonitorSummary(document, runtime, {
+        ...options,
+        summary: result.data.summary,
+      });
+      const message = {
+        completed: null,
+        busy: "A check is already running. Refresh again shortly.",
+        host_backoff:
+          "Checks are waiting for the next retry. Showing the latest saved results.",
+        storage_error:
+          "Could not save check results. Open Settings to check the monitor.",
+        no_enabled_watches:
+          "No enabled watches to check. Showing saved results.",
+      }[result.data.status];
+      if (status && message) status.textContent = message;
+    } catch {
+      if (status)
+        status.textContent =
+          "Refresh could not finish. A check may still be running; try again shortly.";
+    } finally {
+      busy = false;
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Refresh";
+      }
+      list?.setAttribute("aria-busy", "false");
+    }
+  };
+  button?.addEventListener("click", () => {
+    void load(true);
+  });
+  return load(false);
 }

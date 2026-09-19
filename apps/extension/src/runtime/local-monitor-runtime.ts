@@ -360,6 +360,11 @@ export function installLocalMonitorRuntime(options: {
       await awaitPopupSummaryReadiness(initialization);
       return catalog.getCatalog();
     },
+    checkNow: async (watchIds) => {
+      await awaitPopupSummaryReadiness(initialization);
+      if (!engine) throw new Error("Local monitor runtime is not initialized");
+      return engine.checkNow(watchIds);
+    },
     openAvailableAtApple: async (input) =>
       openCurrentAvailableAtApple({
         engine: engineSnapshot,

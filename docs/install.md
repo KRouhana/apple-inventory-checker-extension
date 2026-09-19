@@ -6,7 +6,7 @@ can install the Chrome extension from the versioned GitHub release.
 ## Download and install
 
 1. Open [Releases](https://github.com/KRouhana/apple-inventory-checker-extension/releases/latest).
-2. Download `inventory-signal-local-monitor-0.1.0-chrome.zip` and optionally its
+2. Download `inventory-signal-local-monitor-0.1.1-chrome.zip` and optionally its
    `.sha256` checksum. Choose the attached Chrome ZIP, not GitHub's automatic
    **Source code** archive.
 3. Extract the ZIP into a permanent folder, such as `Documents/Inventory Signal`.
@@ -24,7 +24,9 @@ can install the Chrome extension from the versioned GitHub release.
 3. Choose a check interval from 2 to 60 minutes and enable desktop and/or
    personal Telegram notifications.
 4. Create the watch. Open the extension popup to see phone/store stock status.
-   An **Open at Apple** button appears for a current available result.
+   An **Open at Apple** button appears for a current available result. Use
+   **Refresh** in the popup to check enabled watches and update their results.
+   Paused watches stay paused; retry delays are respected.
 
 Chrome must remain running and your computer awake and connected for checks.
 Unknown means stock could not be verified; it does not mean out of stock.
@@ -61,7 +63,7 @@ Disconnect Telegram separately from clearing monitor data.
 On macOS/Linux, place the ZIP and its checksum file in the same folder, then run:
 
 ```sh
-shasum -a 256 -c inventory-signal-local-monitor-0.1.0-chrome.zip.sha256
+shasum -a 256 -c inventory-signal-local-monitor-0.1.1-chrome.zip.sha256
 ```
 
 ## Help

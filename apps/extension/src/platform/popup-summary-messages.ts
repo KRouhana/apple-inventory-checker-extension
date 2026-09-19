@@ -42,6 +42,20 @@ export const PopupMonitorSummarySchema = z.strictObject({
     )
     .max(20),
 });
+export const PopupRefreshResultSchema = z.strictObject({
+  summary: PopupMonitorSummarySchema,
+  status: z.enum([
+    "completed",
+    "busy",
+    "host_backoff",
+    "storage_error",
+    "no_enabled_watches",
+  ]),
+});
+const refreshRequest = z.strictObject({
+  protocol: z.literal(POPUP_MONITOR_SUMMARY_PROTOCOL),
+  type: z.literal("REFRESH"),
+});
 export type PopupMonitorSummary = z.infer<typeof PopupMonitorSummarySchema>;
 export type PopupWatchItem = z.infer<typeof PopupWatchItemSchema>;
 const openRequest = z.strictObject({
@@ -58,6 +72,9 @@ const summaryRequest = z.strictObject({
 export interface PopupMonitorSummaryDependencies {
   getSnapshot(): Promise<unknown>;
   getCatalog(): Promise<unknown>;
+  checkNow?(
+    watchIds: readonly string[],
+  ): Promise<{ kind: "completed" | "busy" | "host_backoff" | "storage_error" }>;
   openAvailableAtApple(input: {
     watchId: string;
     sku: string;
@@ -154,7 +171,9 @@ export function installPopupMonitorSummaryMessageHandler(
       return;
     const type =
       "type" in input &&
-      (input.type === "GET_SUMMARY" || input.type === "OPEN_AVAILABLE")
+      (input.type === "GET_SUMMARY" ||
+        input.type === "OPEN_AVAILABLE" ||
+        input.type === "REFRESH")
         ? input.type
         : "UNKNOWN";
     const reply = (ok: boolean, result: unknown) =>
@@ -172,7 +191,9 @@ export function installPopupMonitorSummaryMessageHandler(
     const command =
       type === "OPEN_AVAILABLE"
         ? openRequest.safeParse(input)
-        : summaryRequest.safeParse(input);
+        : type === "REFRESH"
+          ? refreshRequest.safeParse(input)
+          : summaryRequest.safeParse(input);
     if (!command.success) {
       reply(false, "invalid_request");
       return;
@@ -205,12 +226,39 @@ export function installPopupMonitorSummaryMessageHandler(
             await deps.openAvailableAtApple({ watchId, sku, storeNumber }),
           );
         } else {
+          let refreshStatus:
+            | "completed"
+            | "busy"
+            | "host_backoff"
+            | "storage_error"
+            | "no_enabled_watches" = "no_enabled_watches";
+          if (command.data.type === "REFRESH") {
+            const snapshot = parseLocalMonitorSnapshot(
+              await deps.getSnapshot(),
+            );
+            if (!snapshot.success || !deps.checkNow) {
+              reply(false, "unavailable");
+              return;
+            }
+            const watchIds = snapshot.data.watches
+              .filter((watch) => watch.enabled)
+              .map((watch) => watch.id);
+            if (watchIds.length > 0)
+              refreshStatus = (await deps.checkNow(watchIds)).kind;
+          }
           const result = projectPopupMonitorSummary(
             await deps.getSnapshot(),
             await deps.getCatalog(),
             deps.now?.(),
           );
-          reply(result !== null, result ?? "unavailable");
+          if (result === null) reply(false, "unavailable");
+          else
+            reply(
+              true,
+              command.data.type === "REFRESH"
+                ? { summary: result, status: refreshStatus }
+                : result,
+            );
         }
       } catch {
         reply(false, "unavailable");

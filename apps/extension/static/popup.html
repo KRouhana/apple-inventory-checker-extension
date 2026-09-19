@@ -13,9 +13,20 @@
           <span class="kicker">Inventory Signal</span>
           <h1>Your watches</h1>
         </div>
-        <button class="settings" data-open-settings type="button">
-          Settings
-        </button>
+        <div class="header-actions">
+          <button
+            class="settings"
+            data-refresh
+            type="button"
+            title="Check enabled watches and refresh results"
+            disabled
+          >
+            Refresh
+          </button>
+          <button class="settings" data-open-settings type="button">
+            Settings
+          </button>
+        </div>
       </header>
       <p class="summary" data-popup-status role="status" aria-live="polite">
         Loading watches…
