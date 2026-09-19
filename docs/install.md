@@ -6,7 +6,7 @@ can install the Chrome extension from the versioned GitHub release.
 ## Download and install
 
 1. Open [Releases](https://github.com/KRouhana/apple-inventory-checker-extension/releases/latest).
-2. Download `inventory-signal-local-monitor-0.1.3-chrome.zip` and optionally its
+2. Download `inventory-signal-local-monitor-0.1.4-chrome.zip` and optionally its
    `.sha256` checksum. Choose the attached Chrome ZIP, not GitHub's automatic
    **Source code** archive.
 3. Extract the ZIP into a permanent folder, such as `Documents/Inventory Signal`.
@@ -36,16 +36,15 @@ Apple confirms availability and you complete any purchase yourself.
 
 ## Optional Telegram setup
 
-Use your own dedicated personal bot. Paste its token in Settings, select
-**Save token**, approve Telegram access if requested, then select **Send test
-notification**. After Telegram accepts the test, enable Personal Telegram for
-your watch. No pairing code or expiring setup link is required.
+Need a token? Follow [Telegram’s official guide to obtaining a bot token](https://core.telegram.org/bots/tutorial#obtain-your-bot-token).
+Use a dedicated personal bot, paste its token in Settings, and select **Pair**.
+Approve Telegram access if requested. Once paired, the button becomes **Test**;
+use it whenever you want to check delivery. Enable Personal Telegram for your watch.
 
-The extension reuses your saved private chat. For a new connection it looks for
-a single private chat in the bot's recent messages. If none is found, open your
-bot and send any message once, then retry the test. Telegram requires users to
-contact a bot before it can message them; a token alone does not identify your
-chat. If multiple private chats are found, use a dedicated personal bot.
+Pairing reuses your saved chat or finds a single private chat in the bot’s recent
+messages. If no chat is found, open your bot, send any message once, then select
+**Pair** again. Multiple private chats are not guessed. Pairing does not send a
+test notification automatically, and setup has no expiring code or link.
 
 Your token and connected chat stay saved across browser sessions with no expiry.
 Never post a token, chat ID, postal code or browser data in GitHub issues.
@@ -69,7 +68,7 @@ Disconnect Telegram separately from clearing monitor data.
 On macOS/Linux, place the ZIP and its checksum file in the same folder, then run:
 
 ```sh
-shasum -a 256 -c inventory-signal-local-monitor-0.1.3-chrome.zip.sha256
+shasum -a 256 -c inventory-signal-local-monitor-0.1.4-chrome.zip.sha256
 ```
 
 ## Help

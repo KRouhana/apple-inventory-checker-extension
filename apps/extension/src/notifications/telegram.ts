@@ -471,6 +471,8 @@ function isPairingConfirmation(text: unknown, nonce: string): boolean {
  */
 export interface PersonalTelegramController extends PersonalTelegramPort {
   status(): Promise<PersonalTelegramStatus>;
+  pairToken?(botToken: string): Promise<PersonalTelegramStatus>;
+  pairSavedToken?(): Promise<PersonalTelegramStatus>;
   saveToken?(botToken: string): Promise<PersonalTelegramStatus>;
   startPairing(botToken: string): Promise<PersonalTelegramStatus>;
   confirmPairing(): Promise<PersonalTelegramStatus>;
@@ -911,9 +913,75 @@ export function createPersonalTelegramController(
     return safeBotUsername(profile.result.username);
   };
 
+  const discoverPrivateChat = async (
+    botToken: string,
+    captured: number,
+  ): Promise<Credentials> => {
+    const updates = await request<TelegramUpdate[]>(
+      botToken,
+      "getUpdates",
+      captured,
+    );
+    if (!updates.ok || !Array.isArray(updates.result))
+      throw new PersonalTelegramError("delivery_failed");
+    const chats = new Set<string>();
+    for (const update of updates.result) {
+      const chat = update?.message?.chat;
+      if (
+        chat?.type === "private" &&
+        (typeof chat.id === "number" || typeof chat.id === "string") &&
+        chatIdIsValid(String(chat.id))
+      )
+        chats.add(String(chat.id));
+    }
+    if (chats.size !== 1)
+      throw new PersonalTelegramError(
+        chats.size > 1 ? "chat_ambiguous" : "chat_not_found",
+      );
+    return { botToken, chatId: [...chats][0]! };
+  };
+  const pairStored = async (
+    state: StoredTelegramState | null,
+    captured: number,
+  ): Promise<PersonalTelegramStatus> => {
+    const setup = state?.setup ?? state?.pending;
+    if (!setup) {
+      assertCurrent(captured);
+      if (!state?.active) throw new PersonalTelegramError("not_connected");
+      return toPublicStatus(state);
+    }
+    const active = await discoverPrivateChat(setup.botToken, captured);
+    const next: StoredTelegramState = {
+      version: 1,
+      active,
+      botUsername: setup.botUsername,
+    };
+    await writeState(next, captured, state);
+    assertCurrent(captured);
+    return toPublicStatus(next);
+  };
+
   return {
     async status() {
       return toPublicStatus(await readState());
+    },
+    async pairToken(botToken) {
+      ensureSupported();
+      const captured = advanceGeneration();
+      const botUsername = await validateBot(botToken, captured);
+      const existing = await readState();
+      assertCurrent(captured);
+      const next: StoredTelegramState =
+        existing?.active?.botToken === botToken
+          ? { version: 1, active: existing.active, botUsername }
+          : { version: 1, setup: { botToken, botUsername } };
+      await writeState(next, captured, existing);
+      return pairStored(parseStoredState(next), captured);
+    },
+    async pairSavedToken() {
+      ensureSupported();
+      const captured = generation;
+      return pairStored(await readState(), captured);
     },
     async saveToken(botToken) {
       ensureSupported();
@@ -1021,28 +1089,7 @@ export function createPersonalTelegramController(
       const setup = state?.setup ?? state?.pending;
       let credentials = state?.active;
       if (setup) {
-        const updates = await request<TelegramUpdate[]>(
-          setup.botToken,
-          "getUpdates",
-          captured,
-        );
-        if (!updates.ok || !Array.isArray(updates.result))
-          throw new PersonalTelegramError("delivery_failed");
-        const chats = new Set<string>();
-        for (const update of updates.result) {
-          const chat = update?.message?.chat;
-          if (
-            chat?.type === "private" &&
-            (typeof chat.id === "number" || typeof chat.id === "string") &&
-            chatIdIsValid(String(chat.id))
-          )
-            chats.add(String(chat.id));
-        }
-        if (chats.size !== 1)
-          throw new PersonalTelegramError(
-            chats.size > 1 ? "chat_ambiguous" : "chat_not_found",
-          );
-        credentials = { botToken: setup.botToken, chatId: [...chats][0]! };
+        credentials = await discoverPrivateChat(setup.botToken, captured);
       }
       if (!credentials) throw new PersonalTelegramError("not_connected");
       await deliver(

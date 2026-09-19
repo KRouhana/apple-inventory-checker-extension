@@ -14,6 +14,8 @@ const TOKEN_PATTERN = /^\d{5,20}:[A-Za-z0-9_-]{20,256}$/;
 
 type CommandType =
   | "STATUS"
+  | "PAIR_TOKEN"
+  | "PAIR_SAVED_TOKEN"
   | "SAVE_TOKEN"
   | "START_PAIRING"
   | "CONFIRM_PAIRING"
@@ -22,6 +24,8 @@ type CommandType =
 
 const COMMAND_TYPES: readonly CommandType[] = [
   "STATUS",
+  "PAIR_TOKEN",
+  "PAIR_SAVED_TOKEN",
   "SAVE_TOKEN",
   "START_PAIRING",
   "CONFIRM_PAIRING",
@@ -33,10 +37,11 @@ export type PersonalTelegramRuntimeCommand =
   | { protocol: typeof PERSONAL_TELEGRAM_PROTOCOL; type: "STATUS" }
   | {
       protocol: typeof PERSONAL_TELEGRAM_PROTOCOL;
-      type: "START_PAIRING" | "SAVE_TOKEN";
+      type: "START_PAIRING" | "SAVE_TOKEN" | "PAIR_TOKEN";
       botToken: string;
     }
   | { protocol: typeof PERSONAL_TELEGRAM_PROTOCOL; type: "CONFIRM_PAIRING" }
+  | { protocol: typeof PERSONAL_TELEGRAM_PROTOCOL; type: "PAIR_SAVED_TOKEN" }
   | { protocol: typeof PERSONAL_TELEGRAM_PROTOCOL; type: "SEND_TEST" }
   | { protocol: typeof PERSONAL_TELEGRAM_PROTOCOL; type: "DISCONNECT" };
 
@@ -113,12 +118,14 @@ export function parsePersonalTelegramRuntimeCommand(
     return null;
   switch (value.type) {
     case "STATUS":
+    case "PAIR_SAVED_TOKEN":
     case "CONFIRM_PAIRING":
     case "SEND_TEST":
     case "DISCONNECT":
       return exactKeys(value, ["protocol", "type"])
         ? { protocol: PERSONAL_TELEGRAM_PROTOCOL, type: value.type }
         : null;
+    case "PAIR_TOKEN":
     case "SAVE_TOKEN":
     case "START_PAIRING":
       return exactKeys(value, ["protocol", "type", "botToken"]) &&
@@ -238,7 +245,15 @@ async function execute(
     if (!dependencies.supported())
       return errorResponse(command.type, "unsupported");
     let status: PersonalTelegramStatus;
-    if (command.type === "SAVE_TOKEN") {
+    if (command.type === "PAIR_TOKEN") {
+      if (!dependencies.controller.pairToken)
+        return errorResponse(command.type, "unsupported");
+      status = await dependencies.controller.pairToken(command.botToken);
+    } else if (command.type === "PAIR_SAVED_TOKEN") {
+      if (!dependencies.controller.pairSavedToken)
+        return errorResponse(command.type, "unsupported");
+      status = await dependencies.controller.pairSavedToken();
+    } else if (command.type === "SAVE_TOKEN") {
       if (!dependencies.controller.saveToken)
         return errorResponse(command.type, "unsupported");
       status = await dependencies.controller.saveToken(command.botToken);

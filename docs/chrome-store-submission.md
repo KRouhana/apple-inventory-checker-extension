@@ -55,8 +55,8 @@ Use the live dashboard taxonomy and the published privacy policy as the source.
 Install the package and use Settings to choose a supported phone and country.
 Use a public Apple-store postal code to find stores, select a store and create
 a watch. Desktop notification testing is available without Telegram. Telegram
-is optional; reviewers may save their own dedicated bot token and send a test
-notification. If no private chat is found, message the bot once and retry. No publisher login or secret is required. Unknown pickup data is expected
+is optional; reviewers may paste their own dedicated bot token and select Pair, then Test
+to check delivery. If no private chat is found, message the bot once and retry Pair. No publisher login or secret is required. Unknown pickup data is expected
 when Apple rejects a request and must not be interpreted as successful stock.
 
 Verify the popup, pause/resume, restart persistence and manual product link.
