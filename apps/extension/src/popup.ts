@@ -1,6 +1,6 @@
 import { getExtensionApi } from "./platform/api";
 import { openLocalMonitorTab } from "./ui/popup-monitor.js";
-import { mountPopupMonitorSummary } from "./ui/popup-summary.js";
+import { initializePopupMonitor } from "./ui/popup-summary.js";
 const api = getExtensionApi();
 const openSettings = () => {
   openLocalMonitorTab(api);
@@ -9,4 +9,4 @@ const openSettings = () => {
 document
   .querySelector("[data-open-settings]")
   ?.addEventListener("click", openSettings);
-void mountPopupMonitorSummary(document, api.runtime, { openSettings });
+void initializePopupMonitor(document, api.runtime, { openSettings });

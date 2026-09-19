@@ -22,7 +22,7 @@ describe("packaged local UI shell", () => {
     ]);
     expect(view).not.toMatch(/localhost/i);
     expect(popup).not.toContain("inventorySignal.localMonitor.v1");
-    expect(popup).toContain("mountPopupMonitorSummary");
+    expect(popup).toContain("initializePopupMonitor");
     expect(app).toContain("createRuntimeMonitorController");
     expect(app).toContain("createRuntimePersonalTelegramController");
     expect(app).not.toMatch(/fetch\(|storage\.local|localhost/i);

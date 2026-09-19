@@ -8,7 +8,10 @@ import {
   type PopupMonitorSummary,
   type PopupWatchItem,
 } from "../../src/platform/popup-summary-messages.js";
-import { mountPopupMonitorSummary } from "../../src/ui/popup-summary.js";
+import {
+  mountPopupMonitorSummary,
+  initializePopupMonitor,
+} from "../../src/ui/popup-summary.js";
 const at = "2026-09-18T12:00:00.000Z";
 function data(): PopupMonitorSummary {
   return {
@@ -64,6 +67,105 @@ async function flush() {
   for (let i = 0; i < 10; i++) await Promise.resolve();
 }
 describe("watch popup", () => {
+  it("refreshes on click, prevents duplicate requests and replaces the displayed status", async () => {
+    const doc = await shell();
+    const summary = data();
+    const fake = runtime(summary);
+    let finish!: (response: unknown) => void;
+    const initialSend = fake.api.sendMessage;
+    fake.api.sendMessage = vi.fn((message, callback) => {
+      if ((message as { type: string }).type === "REFRESH") {
+        finish = callback!;
+        return;
+      }
+      return initialSend(message, callback);
+    });
+    await initializePopupMonitor(doc, fake.api);
+    expect(vi.mocked(fake.api.sendMessage)).toHaveBeenCalledTimes(1);
+    const refresh = doc.querySelector<HTMLButtonElement>("[data-refresh]")!;
+    expect(refresh.disabled).toBe(false);
+    refresh.click();
+    refresh.click();
+    expect(refresh.disabled).toBe(true);
+    expect(refresh.textContent).toBe("Refreshing…");
+    expect(vi.mocked(fake.api.sendMessage)).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(fake.api.sendMessage).mock.calls[1]![0]).toEqual({
+      protocol: POPUP_MONITOR_SUMMARY_PROTOCOL,
+      type: "REFRESH",
+    });
+    summary.watches[0]!.items[0]!.status = "unavailable";
+    finish({
+      protocol: POPUP_MONITOR_SUMMARY_PROTOCOL,
+      type: "RESULT",
+      request: "REFRESH",
+      ok: true,
+      result: { summary, status: "completed" },
+    });
+    await flush();
+    expect(doc.body.textContent).toContain("Out of stock");
+    expect(doc.querySelector(".open-apple")).toBeNull();
+    expect(refresh.disabled).toBe(false);
+    expect(refresh.textContent).toBe("Refresh");
+    expect(doc.querySelector("[data-watches]")!.getAttribute("aria-busy")).toBe(
+      "false",
+    );
+  });
+
+  it("shows retry-delay feedback and keeps existing watches after a refresh failure", async () => {
+    const doc = await shell();
+    const summary = data();
+    const fake = runtime(summary);
+    const original = fake.api.sendMessage;
+    let fail = false;
+    fake.api.sendMessage = (message, callback) => {
+      if ((message as { type: string }).type !== "REFRESH")
+        return original(message, callback);
+      callback?.({
+        protocol: POPUP_MONITOR_SUMMARY_PROTOCOL,
+        type: "RESULT",
+        request: "REFRESH",
+        ok: !fail,
+        ...(fail
+          ? { error: "unavailable" }
+          : { result: { summary, status: "host_backoff" } }),
+      });
+    };
+    await initializePopupMonitor(doc, fake.api);
+    const button = doc.querySelector<HTMLButtonElement>("[data-refresh]")!;
+    button.click();
+    await flush();
+    expect(doc.body.textContent).toContain(
+      "Checks are waiting for the next retry",
+    );
+    fail = true;
+    button.click();
+    await flush();
+    expect(doc.body.textContent).toContain("Refresh could not finish");
+    expect(doc.querySelectorAll(".watch-card")).toHaveLength(1);
+    expect(button.disabled).toBe(false);
+  });
+
+  it("re-enables Refresh after a timeout without discarding the watch list", async () => {
+    vi.useFakeTimers();
+    try {
+      const doc = await shell();
+      const fake = runtime(data());
+      const original = fake.api.sendMessage;
+      fake.api.sendMessage = (message, callback) =>
+        (message as { type: string }).type === "REFRESH"
+          ? undefined
+          : original(message, callback);
+      await initializePopupMonitor(doc, fake.api, { timeoutMs: 100 });
+      const button = doc.querySelector<HTMLButtonElement>("[data-refresh]")!;
+      button.click();
+      await vi.advanceTimersByTimeAsync(101);
+      expect(button.disabled).toBe(false);
+      expect(doc.querySelectorAll(".watch-card")).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("shows watch/store stock and opens Apple only after a click", async () => {
     const doc = await shell();
     const fake = runtime(data());

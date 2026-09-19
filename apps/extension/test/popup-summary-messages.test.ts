@@ -116,6 +116,90 @@ const command = {
   storeNumber: "R123",
 };
 describe("watch popup protocol", () => {
+  it("refreshes only enabled watches and returns the newly saved stock result", async () => {
+    const fake = runtime();
+    const snapshot = fixture();
+    snapshot.watches.push({
+      ...snapshot.watches[0]!,
+      id: "paused-watch",
+      enabled: false,
+    });
+    const checkNow = vi.fn(async (_ids: readonly string[]) => {
+      snapshot.items[0]!.status = "unavailable";
+      snapshot.items[0]!.lastKnownStatus = "unavailable";
+      return { kind: "completed" as const };
+    });
+    installPopupMonitorSummaryMessageHandler(fake.api, {
+      getSnapshot: async () => snapshot,
+      getCatalog: async () => catalog,
+      checkNow,
+      openAvailableAtApple: vi.fn(async () => "unavailable" as const),
+      now: () => now,
+    });
+    const refresh = {
+      protocol: POPUP_MONITOR_SUMMARY_PROTOCOL,
+      type: "REFRESH",
+    };
+    expect(
+      await fake.dispatch(refresh, {
+        ...trusted,
+        url: "https://www.apple.com/",
+      }),
+    ).toMatchObject({ ok: false, error: "unauthorized" });
+    expect(
+      await fake.dispatch({ ...refresh, watchIds: ["arbitrary"] }),
+    ).toMatchObject({ ok: false, error: "invalid_request" });
+    expect(checkNow).not.toHaveBeenCalled();
+    expect(await fake.dispatch(refresh)).toMatchObject({
+      ok: true,
+      result: {
+        status: "completed",
+        summary: {
+          watches: [
+            { id: "watch-one", items: [{ status: "unavailable" }] },
+            { id: "paused-watch", items: [{ status: "paused" }] },
+          ],
+        },
+      },
+    });
+    expect(checkNow).toHaveBeenCalledExactlyOnceWith(["watch-one"]);
+    snapshot.watches[0]!.enabled = false;
+    expect(await fake.dispatch(refresh)).toMatchObject({
+      ok: true,
+      result: { status: "no_enabled_watches" },
+    });
+    expect(checkNow).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["busy", "host_backoff", "storage_error"] as const)(
+    "reports %s without pretending a fresh check succeeded",
+    async (kind) => {
+      const fake = runtime();
+      const snapshot = fixture();
+      const checkNow = vi.fn(async () => ({ kind }));
+      installPopupMonitorSummaryMessageHandler(fake.api, {
+        getSnapshot: async () => snapshot,
+        getCatalog: async () => catalog,
+        checkNow,
+        openAvailableAtApple: vi.fn(async () => "unavailable" as const),
+        now: () => now,
+      });
+      expect(
+        await fake.dispatch({
+          protocol: POPUP_MONITOR_SUMMARY_PROTOCOL,
+          type: "REFRESH",
+        }),
+      ).toMatchObject({
+        ok: true,
+        result: {
+          status: kind,
+          summary: { watches: [{ items: [{ lastCheckedAt: at }] }] },
+        },
+      });
+      expect(checkNow).toHaveBeenCalledTimes(1);
+    },
+  );
+
   it("projects every phone/store with public names and no secrets or location inputs", () => {
     const result = projectPopupMonitorSummary(fixture(), catalog, now)!;
     expect(result.watches[0]).toMatchObject({
