@@ -1,7 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
 
+afterEach(() => vi.restoreAllMocks());
+
 beforeEach(() => {
+  vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Offline test"));
   Object.defineProperty(globalThis, "indexedDB", {
     value: new IDBFactory(),
     configurable: true,
@@ -826,5 +829,48 @@ describe("browser alarm reconciliation", () => {
     firefox.scheduleOneShot(15_000);
     await flush();
     expect(recorded).toEqual([30_000, 60_000]);
+  });
+});
+
+describe("new watch runtime save", () => {
+  it("checks after persistence, returns saved results, and does not check a rejected duplicate", async () => {
+    const fake = createApi();
+    const runtime = installLocalMonitorRuntime({
+      api: fake.api,
+      target: "chrome",
+      catalog: immediatelyLoadedCatalog(),
+    });
+    await runtime.ready;
+    const check = vi.spyOn(runtime.engine, "checkNewWatch");
+    const response = await fake.dispatch(
+      {
+        protocol: LOCAL_MONITOR_PROTOCOL,
+        type: "ADD_WATCH",
+        watch: telegramWatch("first"),
+      },
+      {
+        id: "test-extension",
+        url: "chrome-extension://test-extension/app.html",
+      },
+    );
+    expect(response).toMatchObject({ ok: true, result: true });
+    expect(check).toHaveBeenCalledExactlyOnceWith("first");
+    const snapshot = await runtime.engine.getSnapshot();
+    expect(snapshot.watches).toHaveLength(1);
+    expect(snapshot.items[0]?.lastCheckedAt).not.toBeNull();
+    expect(snapshot.items[0]?.status).toBe("unknown");
+    const duplicate = await fake.dispatch(
+      {
+        protocol: LOCAL_MONITOR_PROTOCOL,
+        type: "ADD_WATCH",
+        watch: telegramWatch("first"),
+      },
+      {
+        id: "test-extension",
+        url: "chrome-extension://test-extension/app.html",
+      },
+    );
+    expect(duplicate).toMatchObject({ ok: true, result: false });
+    expect(check).toHaveBeenCalledTimes(1);
   });
 });

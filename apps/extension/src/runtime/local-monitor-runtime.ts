@@ -285,9 +285,13 @@ export function installLocalMonitorRuntime(options: {
       },
       addWatch: async (watch) => {
         await initialization;
-        return serializeTelegramWatchMutation(async () =>
+        const added = await serializeTelegramWatchMutation(async () =>
           engine!.addWatch(await gateTelegramChannel(watch)),
         );
+        // Persist first; do not hold the Telegram mutation lock during network
+        // work, so disconnect/pause can still revoke delivery while checking.
+        if (added) await engine!.checkNewWatch(watch.id);
+        return added;
       },
       replaceWatch: async (watch) => {
         await initialization;
