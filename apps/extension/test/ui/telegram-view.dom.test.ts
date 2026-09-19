@@ -237,120 +237,85 @@ describe("mounted Personal Telegram setup UI", () => {
     mounted.destroy();
   });
 
-  it("finishes pairing on return, enables the channel and sends a test only on click", async () => {
-    const visibility = vi
-      .spyOn(document, "visibilityState", "get")
-      .mockReturnValue("visible");
+  it("offers a test for a saved token without pairing and enables alerts only after success", async () => {
     let status: PublicTelegramStatus = {
-      kind: "pairing",
-      pairingCommand: `INVENTORY SIGNAL ${"a".repeat(64)}`,
-      expiresAt: "2026-09-09T12:10:00.000Z",
+      kind: "token_saved",
+      botUsername: "SyntheticBot",
     };
-    let finish!: (value: PublicTelegramStatus) => void;
-    const confirmPairing = vi.fn(
-      () =>
-        new Promise<PublicTelegramStatus>((resolve) => {
-          finish = resolve;
-        }),
-    );
-    const sendTest = vi.fn(async () => status);
-    const telegram = {
-      status: vi.fn(async () => status),
-      startPairing: vi.fn(async () => status),
-      confirmPairing,
-      sendTest,
-      disconnect: vi.fn(async () => ({ kind: "disconnected" }) as const),
-    };
-    const root = document.createElement("div");
-    const mounted = mountLocalMonitorUi(root, makeController(telegram));
-    await mounted.refresh();
-    expect(root.textContent).toContain("Your connected bot does not expire");
-    expect(
-      root.querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
-        .disabled,
-    ).toBe(true);
-    expect(
-      root.querySelector<HTMLInputElement>("input[name=telegram]")!.disabled,
-    ).toBe(true);
-    const postal = root.querySelector<HTMLInputElement>(
-      "input[name=location]",
-    )!;
-    postal.value = "M5V 2T6";
-    postal.dispatchEvent(new Event("input"));
-    window.dispatchEvent(new Event("focus"));
-    document.dispatchEvent(new Event("visibilitychange"));
-    await flush();
-    expect(confirmPairing).toHaveBeenCalledTimes(1);
-    status = { kind: "connected", botUsername: "SyntheticBot" };
-    finish(status);
-    await flush();
-    expect(root.textContent).toContain("No expiry");
-    expect(
-      root.querySelector<HTMLInputElement>("input[name=location]")!.value,
-    ).toBe("M5V 2T6");
-    const channel = root.querySelector<HTMLInputElement>(
-      "input[name=telegram]",
-    )!;
-    expect(channel.disabled).toBe(false);
-    channel.checked = true;
-    channel.dispatchEvent(new Event("change"));
-    expect(sendTest).not.toHaveBeenCalled();
-    root
-      .querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
-      .click();
-    await flush();
-    expect(sendTest).toHaveBeenCalledTimes(1);
-    expect(root.textContent).toContain(
-      "Telegram accepted the test notification",
-    );
-    expect(
-      root.querySelector<HTMLInputElement>("input[name=telegram]")!.checked,
-    ).toBe(true);
-    mounted.destroy();
-    window.dispatchEvent(new Event("focus"));
-    await flush();
-    expect(confirmPairing).toHaveBeenCalledTimes(1);
-    const reopened = mountLocalMonitorUi(root, makeController(telegram));
-    await reopened.refresh();
-    expect(root.textContent).toContain("Connected to @SyntheticBot");
-    expect(
-      root.querySelector<HTMLInputElement>("input[name=telegram]")!.disabled,
-    ).toBe(false);
-    expect(root.querySelector("[data-telegram-token]")).toBeNull();
-    reopened.destroy();
-    visibility.mockRestore();
-  });
-
-  it("recovers from an expired setup instead of leaving a dead pairing screen", async () => {
-    let status: PublicTelegramStatus = {
-      kind: "pairing",
-      pairingCommand: `INVENTORY SIGNAL ${"a".repeat(64)}`,
-      expiresAt: "2026-09-09T12:10:00.000Z",
-    };
+    const sendTest = vi.fn(async () => {
+      status = { kind: "connected", botUsername: "SyntheticBot" };
+      return status;
+    });
+    const confirmPairing = vi.fn(async () => status);
     const root = document.createElement("div");
     const mounted = mountLocalMonitorUi(
       root,
       makeController({
         status: vi.fn(async () => status),
         startPairing: vi.fn(async () => status),
-        confirmPairing: vi.fn(async () => {
-          status = { kind: "disconnected" };
+        confirmPairing,
+        sendTest,
+        disconnect: vi.fn(async () => ({ kind: "disconnected" }) as const),
+      }),
+    );
+    await mounted.refresh();
+    expect(root.textContent).toContain("Token saved");
+    expect(root.textContent).not.toContain("Check connection");
+    expect(root.textContent).not.toContain("expires");
+    expect(
+      root.querySelector<HTMLInputElement>("input[name=telegram]")!.disabled,
+    ).toBe(true);
+    window.dispatchEvent(new Event("focus"));
+    await flush();
+    expect(confirmPairing).not.toHaveBeenCalled();
+    expect(sendTest).not.toHaveBeenCalled();
+    const button = root.querySelector<HTMLButtonElement>(
+      "[data-action=telegram-test]",
+    )!;
+    expect(button.disabled).toBe(false);
+    button.click();
+    await flush();
+    expect(sendTest).toHaveBeenCalledTimes(1);
+    expect(root.textContent).toContain("Connected to @SyntheticBot");
+    expect(
+      root.querySelector<HTMLInputElement>("input[name=telegram]")!.disabled,
+    ).toBe(false);
+    mounted.destroy();
+  });
+
+  it("keeps the token saved and offers retry after a failed test", async () => {
+    const status = {
+      kind: "token_saved",
+      botUsername: "SyntheticBot",
+    } as const;
+    const root = document.createElement("div");
+    const mounted = mountLocalMonitorUi(
+      root,
+      makeController({
+        status: vi.fn(async () => status),
+        startPairing: vi.fn(async () => status),
+        confirmPairing: vi.fn(async () => status),
+        sendTest: vi.fn(async () => {
           throw new Error(
-            "This pairing request expired. Start private pairing again.",
+            "No private chat was found. Send any message to your bot, then try again.",
           );
         }),
-        sendTest: vi.fn(async () => status),
         disconnect: vi.fn(async () => status),
       }),
     );
     await mounted.refresh();
     root
-      .querySelector<HTMLButtonElement>("[data-action=telegram-confirm]")!
+      .querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
       .click();
     await flush();
-    expect(root.querySelector("[data-telegram-token]")).not.toBeNull();
-    expect(root.querySelector("[data-action=telegram-confirm]")).toBeNull();
-    expect(root.textContent).toContain("This pairing request expired");
+    expect(root.textContent).toContain("No private chat was found");
+    expect(
+      root.querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
+        .disabled,
+    ).toBe(false);
+    expect(
+      root.querySelector<HTMLInputElement>("input[name=telegram]")!.disabled,
+    ).toBe(true);
     mounted.destroy();
   });
 
@@ -399,11 +364,11 @@ describe("mounted Personal Telegram setup UI", () => {
     const controller = makeController({
       status: vi.fn(async () => status),
       startPairing: vi.fn(async () => status),
-      confirmPairing: vi.fn(async () => {
+      sendTest: vi.fn(async () => {
         status = { kind: "connected", botUsername: "SyntheticBot" };
         return status;
       }),
-      sendTest: vi.fn(async () => status),
+      confirmPairing: vi.fn(async () => status),
       disconnect: vi.fn(async () => status),
     });
     const root = document.createElement("div");
@@ -419,7 +384,7 @@ describe("mounted Personal Telegram setup UI", () => {
     const olderRefresh = mounted.refresh();
     await flush();
     root
-      .querySelector<HTMLButtonElement>("[data-action=telegram-confirm]")!
+      .querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
       .click();
     await flush();
     finish(snapshot);
@@ -1339,7 +1304,7 @@ describe("mounted Personal Telegram setup UI", () => {
     expect(root.childElementCount).toBe(0);
   });
 
-  it("renders only a validated Telegram pairing link and keeps the setup inside the watch form", async () => {
+  it("renders a plain bot link for legacy saved setup and keeps the setup inside the watch form", async () => {
     const nonce = "a".repeat(64);
     const status = {
       kind: "pairing" as const,
@@ -1363,20 +1328,21 @@ describe("mounted Personal Telegram setup UI", () => {
     const link = root.querySelector<HTMLAnchorElement>(
       "[data-watch-form] a[href]",
     );
-    expect(link?.textContent).toBe("Open Telegram and tap Start →");
-    expect(link?.classList.contains("button-link")).toBe(true);
-    expect(root.querySelectorAll(".pairing-steps > li")).toHaveLength(2);
+    expect(link?.textContent).toBe("open your bot");
+    expect(link?.href).toBe("https://t.me/SyntheticBot");
+    expect(link?.search).toBe("");
+    expect(root.querySelectorAll(".pairing-steps > li")).toHaveLength(0);
     expect(link?.target).toBe("_blank");
     expect(link?.rel).toBe("noopener noreferrer");
-    expect(root.textContent).toContain("tap Start in Telegram");
-    expect(root.textContent).toContain("Check connection");
+    expect(root.textContent).toContain("send any message once");
+    expect(root.textContent).not.toContain("Check connection");
     expect(root.querySelector("[data-watch-form] code")).toBeNull();
     expect(root.textContent).not.toContain(`INVENTORY SIGNAL ${nonce}`);
     expect(root.querySelector("main > #telegram-title")).toBeNull();
     mounted.destroy();
   });
 
-  it("preserves an in-progress watch draft through Telegram pairing and connection checks", async () => {
+  it("preserves an in-progress watch draft through token setup and test delivery", async () => {
     let status: PublicTelegramStatus = { kind: "disconnected" };
     const pairing = {
       kind: "pairing" as const,
@@ -1396,11 +1362,11 @@ describe("mounted Personal Telegram setup UI", () => {
           status = pairing;
           return status;
         }),
-        confirmPairing: vi.fn(async () => {
+        sendTest: vi.fn(async () => {
           status = connected;
           return status;
         }),
-        sendTest: vi.fn(async () => status),
+        confirmPairing: vi.fn(async () => status),
         disconnect: vi.fn(async () => status),
       }),
       { requestTelegramHostPermission: vi.fn(async () => true) },
@@ -1450,9 +1416,7 @@ describe("mounted Personal Telegram setup UI", () => {
       .click();
     await flush(16);
 
-    expect(root.querySelector("[data-watch-form] code")?.textContent).toBe(
-      pairing.pairingCommand,
-    );
+    expect(root.querySelector("[data-watch-form] code")).toBeNull();
     expect(
       root.querySelector<HTMLInputElement>("input[name=location]")!.value,
     ).toBe("M5V 2T6");
@@ -1467,7 +1431,7 @@ describe("mounted Personal Telegram setup UI", () => {
       root.querySelector<HTMLInputElement>("input[name=desktop]")!.checked,
     ).toBe(false);
     root
-      .querySelector<HTMLButtonElement>("[data-action=telegram-confirm]")!
+      .querySelector<HTMLButtonElement>("[data-action=telegram-test]")!
       .click();
     await flush(16);
 
@@ -1488,7 +1452,7 @@ describe("mounted Personal Telegram setup UI", () => {
     mounted.destroy();
   });
 
-  it("falls back to the legacy pairing command for an invalid pairing URL", async () => {
+  it("omits invalid legacy links without displaying pairing commands", async () => {
     const nonce = "b".repeat(64);
     const status = {
       kind: "pairing" as const,
@@ -1510,10 +1474,8 @@ describe("mounted Personal Telegram setup UI", () => {
     await mounted.refresh();
 
     expect(root.querySelector("[data-watch-form] a[href]")).toBeNull();
-    expect(root.querySelector("[data-watch-form] code")?.textContent).toBe(
-      `INVENTORY SIGNAL ${nonce}`,
-    );
-    expect(root.textContent).toContain("Check connection");
+    expect(root.querySelector("[data-watch-form] code")).toBeNull();
+    expect(root.textContent).not.toContain("Check connection");
     mounted.destroy();
   });
 

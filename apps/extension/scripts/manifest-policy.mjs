@@ -23,7 +23,7 @@ export function validateManifest(target, manifest) {
     fail();
   if (
     manifest.name !== "Inventory Signal" ||
-    manifest.version !== "0.1.2" ||
+    manifest.version !== "0.1.3" ||
     typeof manifest.description !== "string" ||
     manifest.description.length > 132
   )

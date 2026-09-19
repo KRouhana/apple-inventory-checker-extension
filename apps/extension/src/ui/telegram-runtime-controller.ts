@@ -22,13 +22,13 @@ function publicErrorMessage(code: PublicTelegramError): string {
     case "permission_required":
       return "Telegram permission is required before setup can continue.";
     case "webhook_conflict":
-      return "This bot is already connected to a webhook service. Use a dedicated bot for local pairing.";
+      return "This bot is already connected to a webhook service. Use a dedicated personal bot.";
     case "pairing_pending":
-      return "Pairing is not finished. Open Telegram and tap Start using the setup link (or send the displayed pairing command), then select Check connection.";
+      return "Save your bot token, then send a test notification.";
     case "pairing_expired":
-      return "This pairing request expired. Start private pairing again.";
+      return "Save your bot token again, then send a test notification.";
     case "pairing_ambiguous":
-      return "Multiple matching private chats were found. Use your own private chat and start pairing again.";
+      return "Multiple private chats were found. Use a dedicated personal bot.";
     case "delivery_failed":
       return "The Telegram request failed. Check your connection and bot access, then try again.";
     case "operation_failed":
@@ -38,15 +38,19 @@ function publicErrorMessage(code: PublicTelegramError): string {
     case "storage_unavailable":
       return "Personal Telegram settings could not be saved in this browser. Try again.";
     case "invalid_token_format":
-      return "Paste the complete bot token into the Bot token field, then select Connect Telegram. The field is cleared after each attempt.";
+      return "Paste the complete bot token into the Bot token field, then select Save token. The field is cleared after each attempt.";
     case "token_rejected":
       return "Telegram rejected this bot token. Check that you pasted the current token for your bot, then try again.";
     case "bot_validation_failed":
-      return "Telegram did not confirm the bot identity. Setup stopped before pairing; this does not establish that the token is invalid. Try again later.";
+      return "Telegram did not confirm the bot identity. Setup stopped; this does not establish that the token is invalid. Try again later.";
     case "webhook_check_failed":
-      return "The bot identity was verified, but Telegram did not return a valid webhook configuration. Setup stopped before pairing. Try again later.";
+      return "The bot identity was verified, but Telegram did not return a valid webhook configuration. Setup stopped. Try again later.";
     case "invalid_configuration":
-      return "The bot configuration was not accepted. Start private pairing again with a valid bot token.";
+      return "The bot configuration was not accepted. Save a valid bot token and try again.";
+    case "chat_not_found":
+      return "No private chat was found. Open your bot, send it any message once, then click Send test again.";
+    case "chat_ambiguous":
+      return "This bot has messages from more than one private chat. Use a dedicated personal bot so alerts cannot go to the wrong person.";
     case "not_connected":
       return "Connect Personal Telegram before sending a test alert.";
     case "invalid_event":
@@ -88,6 +92,8 @@ function isPublicError(value: unknown): value is PublicTelegramError {
     "bot_validation_failed",
     "webhook_check_failed",
     "invalid_event",
+    "chat_not_found",
+    "chat_ambiguous",
     "not_connected",
     "pairing_ambiguous",
     "pairing_expired",
@@ -143,13 +149,13 @@ function asStatus(value: unknown): PublicTelegramStatus {
         : { pairingUrl: value.pairingUrl }),
     };
   if (
-    value.kind === "connected" &&
+    (value.kind === "connected" || value.kind === "token_saved") &&
     hasExactKeys(value, ["kind", "botUsername"]) &&
     (value.botUsername === null ||
       (typeof value.botUsername === "string" &&
         /^[A-Za-z0-9_]{1,32}$/.test(value.botUsername)))
   )
-    return { kind: "connected", botUsername: value.botUsername };
+    return { kind: value.kind, botUsername: value.botUsername };
   throw new PersonalTelegramRuntimeError("operation_failed");
 }
 
@@ -236,7 +242,7 @@ export function createRuntimePersonalTelegramController(
         );
       return request(runtime, {
         protocol: PERSONAL_TELEGRAM_PROTOCOL,
-        type: "START_PAIRING",
+        type: "SAVE_TOKEN",
         botToken,
       });
     },
