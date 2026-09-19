@@ -49,6 +49,10 @@ function dependencies(): PersonalTelegramRuntimeDependencies & {
     disableTelegramWatches: vi.fn(async () => undefined),
     controller: {
       status: vi.fn(async () => ({ kind: "disconnected" as const })),
+      saveToken: vi.fn(async (token: string) => {
+        calls.start.push(token);
+        return { kind: "token_saved" as const, botUsername: "SafeBot" };
+      }),
       startPairing: vi.fn(async (token: string) => {
         calls.start.push(token);
         return {
@@ -84,7 +88,7 @@ describe("Personal Telegram setup protocol", () => {
     const clean = `12345:${"a".repeat(20)}`;
     await expect(
       controller.startPairing(`  ${clean}\n`),
-    ).resolves.toMatchObject({ kind: "pairing" });
+    ).resolves.toMatchObject({ kind: "token_saved" });
     expect(deps.calls.start).toEqual([clean]);
     const count = vi.mocked(runtime.sendMessage).mock.calls.length;
     for (const bad of [
@@ -104,35 +108,38 @@ describe("Personal Telegram setup protocol", () => {
   it("maps every finite public error to recovery copy without provider details", () => {
     const secret = `12345:${"s".repeat(20)}`;
     const messages: Readonly<Record<PublicTelegramError, string>> = {
+      chat_not_found:
+        "No private chat was found. Open your bot, send it any message once, then click Send test again.",
+      chat_ambiguous:
+        "This bot has messages from more than one private chat. Use a dedicated personal bot so alerts cannot go to the wrong person.",
       cancelled: "The Personal Telegram request was canceled. Try again.",
       delivery_failed:
         "The Telegram request failed. Check your connection and bot access, then try again.",
       invalid_token_format:
-        "Paste the complete bot token into the Bot token field, then select Connect Telegram. The field is cleared after each attempt.",
+        "Paste the complete bot token into the Bot token field, then select Save token. The field is cleared after each attempt.",
       token_rejected:
         "Telegram rejected this bot token. Check that you pasted the current token for your bot, then try again.",
       bot_validation_failed:
-        "Telegram did not confirm the bot identity. Setup stopped before pairing; this does not establish that the token is invalid. Try again later.",
+        "Telegram did not confirm the bot identity. Setup stopped; this does not establish that the token is invalid. Try again later.",
       webhook_check_failed:
-        "The bot identity was verified, but Telegram did not return a valid webhook configuration. Setup stopped before pairing. Try again later.",
+        "The bot identity was verified, but Telegram did not return a valid webhook configuration. Setup stopped. Try again later.",
       invalid_configuration:
-        "The bot configuration was not accepted. Start private pairing again with a valid bot token.",
+        "The bot configuration was not accepted. Save a valid bot token and try again.",
       invalid_event:
         "The Personal Telegram alert could not be sent. Try again.",
       not_connected: "Connect Personal Telegram before sending a test alert.",
       pairing_ambiguous:
-        "Multiple matching private chats were found. Use your own private chat and start pairing again.",
+        "Multiple private chats were found. Use a dedicated personal bot.",
       pairing_expired:
-        "This pairing request expired. Start private pairing again.",
-      pairing_pending:
-        "Pairing is not finished. Open Telegram and tap Start using the setup link (or send the displayed pairing command), then select Check connection.",
+        "Save your bot token again, then send a test notification.",
+      pairing_pending: "Save your bot token, then send a test notification.",
       permission_required:
         "Telegram permission is required before setup can continue.",
       storage_unavailable:
         "Personal Telegram settings could not be saved in this browser. Try again.",
       unsupported: "Personal Telegram setup is not available in this browser.",
       webhook_conflict:
-        "This bot is already connected to a webhook service. Use a dedicated bot for local pairing.",
+        "This bot is already connected to a webhook service. Use a dedicated personal bot.",
       unauthorized: "This Personal Telegram request was not authorized.",
       invalid_request: "The Personal Telegram request was invalid. Try again.",
       operation_failed:
@@ -362,4 +369,22 @@ describe("Personal Telegram setup protocol", () => {
       vi.useRealTimers();
     }
   });
+});
+
+it("rejects untrusted or destination-injected token saves without calling the controller", async () => {
+  const { runtime, dispatch } = createRuntime();
+  const deps = dependencies();
+  installPersonalTelegramMessageHandler(runtime, deps);
+  const command = {
+    protocol: PERSONAL_TELEGRAM_PROTOCOL,
+    type: "SAVE_TOKEN",
+    botToken: `12345:${"a".repeat(20)}`,
+  };
+  await expect(
+    dispatch(command, { id: "foreign", url: "https://example.com" }),
+  ).resolves.toMatchObject({ ok: false, error: "unauthorized" });
+  await expect(
+    dispatch({ ...command, chatId: "12345" }, trusted),
+  ).resolves.toMatchObject({ ok: false, error: "invalid_request" });
+  expect(deps.controller.saveToken).not.toHaveBeenCalled();
 });

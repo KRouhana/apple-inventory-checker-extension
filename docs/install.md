@@ -6,7 +6,7 @@ can install the Chrome extension from the versioned GitHub release.
 ## Download and install
 
 1. Open [Releases](https://github.com/KRouhana/apple-inventory-checker-extension/releases/latest).
-2. Download `inventory-signal-local-monitor-0.1.2-chrome.zip` and optionally its
+2. Download `inventory-signal-local-monitor-0.1.3-chrome.zip` and optionally its
    `.sha256` checksum. Choose the attached Chrome ZIP, not GitHub's automatic
    **Source code** archive.
 3. Extract the ZIP into a permanent folder, such as `Documents/Inventory Signal`.
@@ -36,14 +36,18 @@ Apple confirms availability and you complete any purchase yourself.
 
 ## Optional Telegram setup
 
-Use your own dedicated bot. Enter its token only in the extension's Bot token
-field. Select **Connect Telegram**, approve optional Telegram access, then
-choose **Open Telegram and tap Start**. Tap **Start** in the private bot chat,
-return to Settings, and use **Check connection** if needed.
+Use your own dedicated personal bot. Paste its token in Settings, select
+**Save token**, approve Telegram access if requested, then select **Send test
+notification**. After Telegram accepts the test, enable Personal Telegram for
+your watch. No pairing code or expiring setup link is required.
 
-Once connected, the bot stays saved across browser sessions. Enable Personal
-Telegram for the watch and use **Send Telegram test notification** to verify
-receipt. The ten-minute expiry applies only to the one-time pairing link.
+The extension reuses your saved private chat. For a new connection it looks for
+a single private chat in the bot's recent messages. If none is found, open your
+bot and send any message once, then retry the test. Telegram requires users to
+contact a bot before it can message them; a token alone does not identify your
+chat. If multiple private chats are found, use a dedicated personal bot.
+
+Your token and connected chat stay saved across browser sessions with no expiry.
 Never post a token, chat ID, postal code or browser data in GitHub issues.
 
 ## Update an existing manual installation
@@ -57,7 +61,7 @@ separate extension identity; watches and Telegram settings do not automatically
 transfer. Keep the old installation until you have verified the replacement.
 
 If a saved Telegram connection cannot be read, Settings offers **Disconnect
-saved Telegram connection** so you can pair again without deleting watches.
+saved Telegram connection** so you can save your token again without deleting watches.
 Disconnect Telegram separately from clearing monitor data.
 
 ## Verify the download
@@ -65,7 +69,7 @@ Disconnect Telegram separately from clearing monitor data.
 On macOS/Linux, place the ZIP and its checksum file in the same folder, then run:
 
 ```sh
-shasum -a 256 -c inventory-signal-local-monitor-0.1.2-chrome.zip.sha256
+shasum -a 256 -c inventory-signal-local-monitor-0.1.3-chrome.zip.sha256
 ```
 
 ## Help

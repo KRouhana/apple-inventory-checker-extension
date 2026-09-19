@@ -79,9 +79,12 @@
       <p>
         Connecting a bot is optional. If you choose to connect one, the
         extension sends the bot credential directly to
-        <code>api.telegram.org</code> to authenticate requests. It checks the
-        private pairing interaction to identify the chat you authorized and
-        sends test or availability messages to that chat.
+        <code>api.telegram.org</code> to authenticate requests. It reuses your
+        saved private chat or reads recent incoming bot messages to find a
+        single private chat for your requested test. It does not save message
+        contents. If multiple private chats are found, it does not choose a
+        recipient or send the test. After a successful test, it saves that chat
+        for future availability messages.
       </p>
       <p>
         Your bot credential and chat details are used only for requests to
@@ -91,8 +94,7 @@
         practices.
       </p>
       <p>
-        A pairing link can expire before setup is finished. The saved
-        connected-bot configuration does not have that setup-link expiry.
+        Saved bot tokens and connected-chat settings have no setup expiry.
         Disconnecting the integration removes the extension’s saved connection;
         revoking a bot token or removing messages already delivered in Telegram
         must be done through Telegram.

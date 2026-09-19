@@ -857,3 +857,175 @@ describe("personal Telegram adapter", () => {
     });
   });
 });
+
+describe("simple token setup", () => {
+  const privateUpdates = (ids: number[]) =>
+    response({
+      ok: true,
+      result: ids.map((id) => ({
+        message: { text: "hello", chat: { id, type: "private" } },
+      })),
+    });
+  const sent = () => response({ ok: true, result: { message_id: 1 } });
+
+  it("saves without pairing or expiry, discovers one private chat on test, and survives restart", async () => {
+    const h = harness({
+      responses: [
+        ...connectedResponses(),
+        privateUpdates([12345, 12345]),
+        sent(),
+      ],
+    });
+    expect(await h.controller.saveToken!(token)).toEqual({
+      kind: "token_saved",
+      botUsername: "MyPersonalBot",
+    });
+    expect(h.calls).toHaveLength(2);
+    expect(
+      JSON.stringify(h.values.get(PERSONAL_TELEGRAM_STORAGE_KEY)),
+    ).not.toMatch(/nonce|expiresAt/);
+    h.advance(365 * 24 * 60 * 60 * 1000);
+    await h.controller.sendTest();
+    expect(JSON.parse(h.calls[3]!.init.body!).chat_id).toBe("12345");
+    expect(
+      await harness({ savedValues: h.values }).controller.status(),
+    ).toEqual({ kind: "connected", botUsername: "MyPersonalBot" });
+    expect(JSON.stringify(await h.controller.status())).not.toContain(token);
+  });
+
+  it.each([
+    [[], "chat_not_found"],
+    [[12345, 67890], "chat_ambiguous"],
+  ] as const)(
+    "does not send or enable alerts for missing or ambiguous chats %j",
+    async (ids, code) => {
+      const h = harness({
+        responses: [...connectedResponses(), privateUpdates([...ids])],
+      });
+      await h.controller.saveToken!(token);
+      await expect(h.controller.sendTest()).rejects.toMatchObject({ code });
+      expect(h.calls).toHaveLength(3);
+      expect((await h.controller.status()).kind).toBe("token_saved");
+      await expect(
+        h.controller.sendStoredAvailable(event),
+      ).rejects.toMatchObject({ code: "not_connected" });
+    },
+  );
+
+  it("ignores group chats and malformed IDs", async () => {
+    const h = harness({
+      responses: [
+        ...connectedResponses(),
+        response({
+          ok: true,
+          result: [
+            { message: { chat: { type: "group", id: -12345 } } },
+            { message: { chat: { type: "private", id: "oops" } } },
+          ],
+        }),
+      ],
+    });
+    await h.controller.saveToken!(token);
+    await expect(h.controller.sendTest()).rejects.toMatchObject({
+      code: "chat_not_found",
+    });
+    expect(h.calls).toHaveLength(3);
+  });
+
+  it("reuses the saved chat for the same token without update discovery", async () => {
+    const values = new Map<string, unknown>([
+      [
+        PERSONAL_TELEGRAM_STORAGE_KEY,
+        {
+          version: 1,
+          active: { botToken: token, chatId: "12345" },
+          botUsername: "MyPersonalBot",
+        },
+      ],
+    ]);
+    const h = harness({
+      savedValues: values,
+      responses: [...connectedResponses(), sent()],
+    });
+    expect((await h.controller.saveToken!(token)).kind).toBe("connected");
+    await h.controller.sendTest();
+    expect(h.calls.some((call) => call.url.includes("getUpdates"))).toBe(false);
+  });
+
+  it("keeps setup saved when Telegram rejects the test", async () => {
+    const h = harness({
+      responses: [
+        ...connectedResponses(),
+        privateUpdates([12345]),
+        response({ ok: false, error_code: 403 }, { httpStatus: 403 }),
+      ],
+    });
+    await h.controller.saveToken!(token);
+    await expect(h.controller.sendTest()).rejects.toMatchObject({
+      code: "delivery_failed",
+    });
+    expect((await h.controller.status()).kind).toBe("token_saved");
+  });
+
+  it("converts unfinished legacy pairing through a test even after its old expiry", async () => {
+    const values = new Map<string, unknown>([
+      [
+        PERSONAL_TELEGRAM_STORAGE_KEY,
+        {
+          version: 1,
+          pending: {
+            botToken: token,
+            nonce,
+            expiresAtMs: 1,
+            botUsername: "MyPersonalBot",
+          },
+        },
+      ],
+    ]);
+    const h = harness({
+      savedValues: values,
+      responses: [privateUpdates([12345]), sent()],
+    });
+    await h.controller.sendTest();
+    expect((await h.controller.status()).kind).toBe("connected");
+  });
+});
+
+describe("simple setup cancellation", () => {
+  it("does not reconnect or send when disconnected during chat discovery", async () => {
+    let finish!: (value: TelegramResponse) => void;
+    let started!: () => void;
+    const startedPromise = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const h = harness({
+      responses: connectedResponses(),
+      fetchOverride: (url) => {
+        if (url.includes("getUpdates")) {
+          started();
+          return new Promise<TelegramResponse>((resolve) => {
+            finish = resolve;
+          });
+        }
+      },
+    });
+    await h.controller.saveToken!(token);
+    const test = h.controller.sendTest();
+    const rejected = expect(test).rejects.toMatchObject({ code: "cancelled" });
+    await startedPromise;
+    await h.controller.disconnect();
+    finish(
+      response({
+        ok: true,
+        result: [
+          { message: { text: "hello", chat: { type: "private", id: 12345 } } },
+        ],
+      }),
+    );
+    await rejected;
+    expect(h.values.size).toBe(0);
+    expect(h.calls.some((call) => call.url.includes("sendMessage"))).toBe(
+      false,
+    );
+  });
+});

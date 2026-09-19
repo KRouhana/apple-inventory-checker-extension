@@ -218,3 +218,19 @@ describe("trusted-context restriction", () => {
     await expect(restrictLocalStorage(api)).resolves.toBe(false);
   });
 });
+
+it("persists unfinished token setup encrypted across worker restarts", async () => {
+  const h = harness();
+  const setup = {
+    version: 1,
+    setup: {
+      botToken: "synthetic-unfinished-token",
+      botUsername: "SyntheticBot",
+    },
+  };
+  await h.create().write(legacyKey, setup);
+  expect(JSON.stringify([...h.values])).not.toContain(setup.setup.botToken);
+  await expect(h.create().read(legacyKey)).resolves.toEqual(setup);
+  await h.create().remove(legacyKey);
+  await expect(h.create().read(legacyKey)).resolves.toBeNull();
+});

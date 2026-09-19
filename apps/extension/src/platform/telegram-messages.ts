@@ -14,6 +14,7 @@ const TOKEN_PATTERN = /^\d{5,20}:[A-Za-z0-9_-]{20,256}$/;
 
 type CommandType =
   | "STATUS"
+  | "SAVE_TOKEN"
   | "START_PAIRING"
   | "CONFIRM_PAIRING"
   | "SEND_TEST"
@@ -21,6 +22,7 @@ type CommandType =
 
 const COMMAND_TYPES: readonly CommandType[] = [
   "STATUS",
+  "SAVE_TOKEN",
   "START_PAIRING",
   "CONFIRM_PAIRING",
   "SEND_TEST",
@@ -31,7 +33,7 @@ export type PersonalTelegramRuntimeCommand =
   | { protocol: typeof PERSONAL_TELEGRAM_PROTOCOL; type: "STATUS" }
   | {
       protocol: typeof PERSONAL_TELEGRAM_PROTOCOL;
-      type: "START_PAIRING";
+      type: "START_PAIRING" | "SAVE_TOKEN";
       botToken: string;
     }
   | { protocol: typeof PERSONAL_TELEGRAM_PROTOCOL; type: "CONFIRM_PAIRING" }
@@ -47,6 +49,7 @@ export type PublicTelegramStatus =
       expiresAt: string;
       pairingUrl?: string;
     }
+  | { kind: "token_saved"; botUsername: string | null }
   | { kind: "connected"; botUsername: string | null };
 
 export type PublicTelegramError =
@@ -116,12 +119,13 @@ export function parsePersonalTelegramRuntimeCommand(
       return exactKeys(value, ["protocol", "type"])
         ? { protocol: PERSONAL_TELEGRAM_PROTOCOL, type: value.type }
         : null;
+    case "SAVE_TOKEN":
     case "START_PAIRING":
       return exactKeys(value, ["protocol", "type", "botToken"]) &&
         validToken(value.botToken)
         ? {
             protocol: PERSONAL_TELEGRAM_PROTOCOL,
-            type: "START_PAIRING",
+            type: value.type,
             botToken: value.botToken,
           }
         : null;
@@ -182,6 +186,7 @@ function publicStatus(
           ? {}
           : { pairingUrl: status.pairingUrl }),
       };
+    case "token_saved":
     case "connected":
       if (
         status.botUsername !== null &&
@@ -189,7 +194,7 @@ function publicStatus(
           !USERNAME_PATTERN.test(status.botUsername))
       )
         return null;
-      return { kind: "connected", botUsername: status.botUsername };
+      return { kind: status.kind, botUsername: status.botUsername };
   }
 }
 
@@ -233,7 +238,11 @@ async function execute(
     if (!dependencies.supported())
       return errorResponse(command.type, "unsupported");
     let status: PersonalTelegramStatus;
-    if (command.type === "START_PAIRING")
+    if (command.type === "SAVE_TOKEN") {
+      if (!dependencies.controller.saveToken)
+        return errorResponse(command.type, "unsupported");
+      status = await dependencies.controller.saveToken(command.botToken);
+    } else if (command.type === "START_PAIRING")
       status = await dependencies.controller.startPairing(command.botToken);
     else if (command.type === "CONFIRM_PAIRING")
       status = await dependencies.controller.confirmPairing();

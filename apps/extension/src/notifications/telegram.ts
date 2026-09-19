@@ -29,6 +29,8 @@ export type TelegramErrorCode =
   | "bot_validation_failed"
   | "webhook_check_failed"
   | "invalid_event"
+  | "chat_not_found"
+  | "chat_ambiguous"
   | "not_connected"
   | "pairing_ambiguous"
   | "pairing_expired"
@@ -117,6 +119,7 @@ export type PersonalTelegramStatus =
       /** Present only when Telegram returned a validated bot username. */
       pairingUrl?: string;
     }
+  | { kind: "token_saved"; botUsername: string | null }
   | { kind: "connected"; botUsername: string | null };
 
 interface Credentials {
@@ -136,6 +139,10 @@ interface StoredTelegramState {
   readonly active?: Credentials;
   readonly botUsername?: string | null;
   readonly pending?: PendingPairing;
+  readonly setup?: {
+    readonly botToken: string;
+    readonly botUsername: string | null;
+  };
 }
 
 function sameStoredState(
@@ -151,6 +158,8 @@ function sameStoredState(
     return false;
   }
   return (
+    left.setup?.botToken === right.setup?.botToken &&
+    left.setup?.botUsername === right.setup?.botUsername &&
     left.pending?.botToken === right.pending?.botToken &&
     left.pending?.nonce === right.pending?.nonce &&
     left.pending?.expiresAtMs === right.pending?.expiresAtMs &&
@@ -282,11 +291,29 @@ function parseStoredState(value: unknown): StoredTelegramState | null {
       botUsername: safeBotUsername(parsed.botUsername),
     };
   }
-  if (!active && !pending) return null;
+  let setup: StoredTelegramState["setup"];
+  if (candidate.setup !== undefined) {
+    const value = candidate.setup;
+    if (
+      !value ||
+      typeof value !== "object" ||
+      !("botToken" in value) ||
+      !tokenIsValid(value.botToken)
+    )
+      return null;
+    setup = {
+      botToken: value.botToken,
+      botUsername: safeBotUsername(
+        "botUsername" in value ? value.botUsername : null,
+      ),
+    };
+  }
+  if (!active && !pending && !setup) return null;
   return {
     version: 1,
     ...(active ? { active } : {}),
     ...(pending ? { pending } : {}),
+    ...(setup ? { setup } : {}),
     botUsername: safeBotUsername(candidate.botUsername),
   };
 }
@@ -444,6 +471,7 @@ function isPairingConfirmation(text: unknown, nonce: string): boolean {
  */
 export interface PersonalTelegramController extends PersonalTelegramPort {
   status(): Promise<PersonalTelegramStatus>;
+  saveToken?(botToken: string): Promise<PersonalTelegramStatus>;
   startPairing(botToken: string): Promise<PersonalTelegramStatus>;
   confirmPairing(): Promise<PersonalTelegramStatus>;
   sendTest(options?: PersonalTelegramDeliveryOptions): Promise<void>;
@@ -826,6 +854,8 @@ export function createPersonalTelegramController(
   const toPublicStatus = (
     state: StoredTelegramState | null,
   ): PersonalTelegramStatus => {
+    if (state?.setup)
+      return { kind: "token_saved", botUsername: state.setup.botUsername };
     if (state?.pending) {
       const url = pairingUrl(state.pending.botUsername, state.pending.nonce);
       return {
@@ -841,59 +871,77 @@ export function createPersonalTelegramController(
     return { kind: "disconnected" };
   };
 
+  const validateBot = async (
+    botToken: string,
+    captured: number,
+  ): Promise<string | null> => {
+    if (!tokenIsValid(botToken)) {
+      throw new PersonalTelegramError("invalid_configuration");
+    }
+    const profile = await request<TelegramBotProfile>(
+      botToken,
+      "getMe",
+      captured,
+    );
+    if (!profile.ok || !profile.result || profile.result.is_bot !== true) {
+      throw new PersonalTelegramError(
+        !profile.ok && profile.error_code === 401
+          ? "token_rejected"
+          : "bot_validation_failed",
+      );
+    }
+    const webhook = await request<TelegramWebhookInfo>(
+      botToken,
+      "getWebhookInfo",
+      captured,
+    );
+    if (!webhook.ok || !webhook.result || typeof webhook.result !== "object") {
+      throw new PersonalTelegramError(
+        !webhook.ok && webhook.error_code === 401
+          ? "token_rejected"
+          : "webhook_check_failed",
+      );
+    }
+    if (typeof webhook.result.url !== "string") {
+      throw new PersonalTelegramError("webhook_check_failed");
+    }
+    if (webhook.result.url.trim() !== "") {
+      throw new PersonalTelegramError("webhook_conflict");
+    }
+    return safeBotUsername(profile.result.username);
+  };
+
   return {
     async status() {
       return toPublicStatus(await readState());
+    },
+    async saveToken(botToken) {
+      ensureSupported();
+      const captured = advanceGeneration();
+      const botUsername = await validateBot(botToken, captured);
+      const existing = await readState();
+      assertCurrent(captured);
+      const next: StoredTelegramState =
+        existing?.active?.botToken === botToken
+          ? { version: 1, active: existing.active, botUsername }
+          : { version: 1, setup: { botToken, botUsername } };
+      await writeState(next, captured, existing);
+      assertCurrent(captured);
+      return toPublicStatus(next);
     },
     async startPairing(botToken) {
       ensureSupported();
       // Beginning a replacement setup, including one rejected at validation,
       // invalidates every earlier setup/delivery generation.
       const captured = advanceGeneration();
-      if (!tokenIsValid(botToken)) {
-        throw new PersonalTelegramError("invalid_configuration");
-      }
-      const profile = await request<TelegramBotProfile>(
-        botToken,
-        "getMe",
-        captured,
-      );
-      if (!profile.ok || !profile.result || profile.result.is_bot !== true) {
-        throw new PersonalTelegramError(
-          !profile.ok && profile.error_code === 401
-            ? "token_rejected"
-            : "bot_validation_failed",
-        );
-      }
-      const webhook = await request<TelegramWebhookInfo>(
-        botToken,
-        "getWebhookInfo",
-        captured,
-      );
-      if (
-        !webhook.ok ||
-        !webhook.result ||
-        typeof webhook.result !== "object"
-      ) {
-        throw new PersonalTelegramError(
-          !webhook.ok && webhook.error_code === 401
-            ? "token_rejected"
-            : "webhook_check_failed",
-        );
-      }
-      if (typeof webhook.result.url !== "string") {
-        throw new PersonalTelegramError("webhook_check_failed");
-      }
-      if (webhook.result.url.trim() !== "") {
-        throw new PersonalTelegramError("webhook_conflict");
-      }
+      const botUsername = await validateBot(botToken, captured);
       const existing = await readState();
       assertCurrent(captured);
       const pending: PendingPairing = {
         botToken,
         nonce: nonceFromBytes(random.bytes(32)),
         expiresAtMs: clock.nowMs() + PAIRING_TTL_MS,
-        botUsername: safeBotUsername(profile.result.username),
+        botUsername,
       };
       const next: StoredTelegramState = {
         version: 1,
@@ -970,20 +1018,56 @@ export function createPersonalTelegramController(
       ensureSupported();
       const captured = generation;
       const state = await readState();
-      if (!state?.active) throw new PersonalTelegramError("not_connected");
+      const setup = state?.setup ?? state?.pending;
+      let credentials = state?.active;
+      if (setup) {
+        const updates = await request<TelegramUpdate[]>(
+          setup.botToken,
+          "getUpdates",
+          captured,
+        );
+        if (!updates.ok || !Array.isArray(updates.result))
+          throw new PersonalTelegramError("delivery_failed");
+        const chats = new Set<string>();
+        for (const update of updates.result) {
+          const chat = update?.message?.chat;
+          if (
+            chat?.type === "private" &&
+            (typeof chat.id === "number" || typeof chat.id === "string") &&
+            chatIdIsValid(String(chat.id))
+          )
+            chats.add(String(chat.id));
+        }
+        if (chats.size !== 1)
+          throw new PersonalTelegramError(
+            chats.size > 1 ? "chat_ambiguous" : "chat_not_found",
+          );
+        credentials = { botToken: setup.botToken, chatId: [...chats][0]! };
+      }
+      if (!credentials) throw new PersonalTelegramError("not_connected");
       await deliver(
-        state.active,
+        credentials,
         "Inventory Signal test\nPersonal Telegram alerts are connected.",
         null,
         captured,
         options,
       );
+      // Only enable alerts after Telegram accepts the explicitly requested test.
+      if (setup) {
+        await writeState(
+          { version: 1, active: credentials, botUsername: setup.botUsername },
+          captured,
+          state,
+        );
+        assertCurrent(captured);
+      }
     },
     async sendStoredAvailable(event, options) {
       ensureSupported();
       const captured = generation;
       const state = await readState();
-      if (!state?.active) throw new PersonalTelegramError("not_connected");
+      if (!state?.active || state.setup)
+        throw new PersonalTelegramError("not_connected");
       return deliver(
         state.active,
         formatPersonalTelegramAvailability(event),

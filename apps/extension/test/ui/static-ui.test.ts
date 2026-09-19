@@ -19,6 +19,7 @@ describe("packaged local UI shell", () => {
     expect(viewOrigins).toEqual([
       "https://t.me",
       "https://krouhana.github.io/apple-inventory-checker-extension/privacy.html",
+      "https://t.me/${status.botUsername}",
     ]);
     expect(view).not.toMatch(/localhost/i);
     expect(popup).not.toContain("inventorySignal.localMonitor.v1");

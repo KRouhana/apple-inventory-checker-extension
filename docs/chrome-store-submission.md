@@ -45,7 +45,7 @@ No remote executable code is loaded. Data responses are not evaluated as code.
 ## Data disclosures to reconcile in the dashboard
 
 Accurately declare authentication information (optional bot token), chat identity,
-transient pairing messages and location-related lookup input. Local-only storage
+transient incoming bot messages and location-related lookup input. Local-only storage
 does not justify an unconditional 'no user data' assertion. No data is sold or
 used for advertising; processing is limited to the stated user-facing purpose.
 Use the live dashboard taxonomy and the published privacy policy as the source.
@@ -55,8 +55,8 @@ Use the live dashboard taxonomy and the published privacy policy as the source.
 Install the package and use Settings to choose a supported phone and country.
 Use a public Apple-store postal code to find stores, select a store and create
 a watch. Desktop notification testing is available without Telegram. Telegram
-is optional; reviewers may use their own dedicated bot and private Start pairing
-flow. No publisher login or secret is required. Unknown pickup data is expected
+is optional; reviewers may save their own dedicated bot token and send a test
+notification. If no private chat is found, message the bot once and retry. No publisher login or secret is required. Unknown pickup data is expected
 when Apple rejects a request and must not be interpreted as successful stock.
 
 Verify the popup, pause/resume, restart persistence and manual product link.

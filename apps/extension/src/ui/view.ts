@@ -450,12 +450,17 @@ function renderTelegramSetup(
   const busy = disabled(state.telegramBusy);
   let body: string;
   if (state.telegramStatusUnavailable) {
-    body = `<p class="notice notice--error">The saved Telegram connection could not be read. Reload this page to try again. If it stays unavailable, disconnect the saved connection and pair your bot again. Your watches will be kept.</p><button type="button" class="tertiary danger" data-action="telegram-disconnect"${busy}>Disconnect saved Telegram connection</button>`;
+    body = `<p class="notice notice--error">The saved Telegram connection could not be read. Reload this page to try again. If it stays unavailable, disconnect the saved connection and save your bot token again. Your watches will be kept.</p><button type="button" class="tertiary danger" data-action="telegram-disconnect"${busy}>Disconnect saved Telegram connection</button>`;
   } else if (!status || status.kind === "disconnected") {
-    body = `<p>Connect your bot once. The connection has no expiry and is saved in this browser profile across browser sessions. Tap Connect Telegram to begin setup.</p><p class="field-help">Your bot credential is stored encrypted in this browser profile and sent directly to Telegram for authentication. <a href="https://krouhana.github.io/apple-inventory-checker-extension/privacy.html" target="_blank" rel="noopener noreferrer">Privacy details</a>.</p><label>Bot token<input data-telegram-token type="password" autocomplete="off" spellcheck="false" /></label><div class="button-row"><button type="button" data-action="telegram-start"${busy}>Connect Telegram</button></div>`;
-  } else if (status.kind === "pairing") {
-    const pairingUrl = validatedPairingUrl(status);
-    body = `<div class="telegram-pairing" aria-label="Finish Telegram setup"><h3>One more step: connect your chat</h3><p>Your bot token was accepted. Choose the private chat that should receive your alerts.</p><ol class="pairing-steps"><li><strong>Open your bot and tap Start in Telegram</strong><p>${pairingUrl ? `<a class="button-link" href="${escapeHtml(pairingUrl)}" target="_blank" rel="noopener noreferrer">Open Telegram and tap Start →</a>` : `Send this one-time command to your bot in a private chat:<br /><code>${escapeHtml(status.pairingCommand)}</code>`}</p></li><li><strong>Return here to finish connecting</strong><p>We check when you return. If setup is still pending, choose Check connection.</p><button type="button" data-action="telegram-confirm"${busy}>Check connection</button></li></ol><p class="field-help">Only this setup link expires ${escapeHtml(formatAt(status.expiresAt))}. Your connected bot does not expire and stays saved across sessions.</p><button type="button" class="tertiary" data-action="telegram-disconnect"${busy}>Cancel pairing</button></div>`;
+    body = `<p>Connect your bot once. The connection has no expiry and is saved in this browser profile across browser sessions. Paste your token, save it, then send a test notification.</p><p class="field-help">Your bot credential is stored encrypted in this browser profile and sent directly to Telegram for authentication. <a href="https://krouhana.github.io/apple-inventory-checker-extension/privacy.html" target="_blank" rel="noopener noreferrer">Privacy details</a>.</p><label>Bot token<input data-telegram-token type="password" autocomplete="off" spellcheck="false" /></label><div class="button-row"><button type="button" data-action="telegram-start"${busy}>Save token</button></div>`;
+  } else if (status.kind === "token_saved" || status.kind === "pairing") {
+    const botUrl =
+      status.kind === "token_saved"
+        ? status.botUsername && /^[A-Za-z0-9_]{5,32}$/.test(status.botUsername)
+          ? `https://t.me/${status.botUsername}`
+          : null
+        : validatedPairingUrl(status)?.split("?")[0];
+    body = `<p>Token saved. Send a test notification to finish connecting. Your setup stays saved across sessions with no expiry.</p><div class="button-row"><button type="button" data-action="telegram-test"${busy}>Send test notification</button><button type="button" class="tertiary" data-action="telegram-disconnect"${busy}>Remove token</button></div><p class="field-help">If no chat is found, ${botUrl ? `<a href="${escapeHtml(botUrl)}" target="_blank" rel="noopener noreferrer">open your bot</a>` : "open your bot in Telegram"}, send any message once, then try the test again. Use a dedicated personal bot.</p>`;
   } else if (status.kind === "connected") {
     const bot = status.botUsername
       ? `@${status.botUsername}`
@@ -463,9 +468,6 @@ function renderTelegramSetup(
     body = `<p>Connected to ${escapeHtml(bot)}. No expiry. Saved in this browser profile across sessions; used for any watch where you select Personal Telegram.</p><div class="button-row"><button type="button" data-action="telegram-test"${busy}>Send Telegram test notification</button><button type="button" class="tertiary danger" data-action="telegram-disconnect"${busy}>Disconnect</button></div>`;
   } else {
     body = `<p>Personal Telegram is not supported by this browser target. No setup request was made.</p>`;
-  }
-  if (status?.kind !== "connected" && status?.kind !== "unsupported") {
-    body += `<p>Finish pairing to enable Telegram alerts and send a test notification.</p><button type="button" data-action="telegram-test" disabled>Send Telegram test notification</button>`;
   }
   return `<fieldset${disabled(state.telegramBusy)}><legend>Personal Telegram</legend>${body}</fieldset>`;
 }
@@ -561,7 +563,7 @@ function render(state: UiState, controller: MonitorUiController): string {
         </fieldset>
         ${renderTelegramSetup(state, controller.personalTelegram)}
         ${renderDesktopDiagnostic(state, controller)}
-        <fieldset${disabled(!interactive)}><legend>Monitoring and channels</legend><div class="form-grid"><label>Check interval (2–60 minutes)<input name="interval" aria-label="Check interval (2–60 minutes)" type="number" inputmode="numeric" min="${MIN_INTERVAL_MINUTES}" max="${MAX_INTERVAL_MINUTES}" step="1" required value="${escapeHtml(String(state.pollIntervalSec / 60))}" /><span class="field-help">Whole minutes only; choose 2–60 minutes.</span></label></div><div class="channel-list"><label class="check"><input type="checkbox" name="desktop"${checked(state.deliveryChannels.desktop)}${disabled(channelDisabled)} />Desktop notifications <span>Delivery verification is tracked separately.</span></label><label class="check"><input type="checkbox" name="telegram"${checked(state.deliveryChannels.personalTelegram)}${disabled(channelDisabled || !telegramConnected)} />Personal Telegram <span>${telegramConnected ? "Connected locally. Save this watch to enable alerts." : state.telegramStatus?.kind === "pairing" ? "Pairing is not finished. Tap Start in Telegram, then Check connection above." : "Connect your bot above to enable Telegram alerts."}</span></label></div></fieldset>
+        <fieldset${disabled(!interactive)}><legend>Monitoring and channels</legend><div class="form-grid"><label>Check interval (2–60 minutes)<input name="interval" aria-label="Check interval (2–60 minutes)" type="number" inputmode="numeric" min="${MIN_INTERVAL_MINUTES}" max="${MAX_INTERVAL_MINUTES}" step="1" required value="${escapeHtml(String(state.pollIntervalSec / 60))}" /><span class="field-help">Whole minutes only; choose 2–60 minutes.</span></label></div><div class="channel-list"><label class="check"><input type="checkbox" name="desktop"${checked(state.deliveryChannels.desktop)}${disabled(channelDisabled)} />Desktop notifications <span>Delivery verification is tracked separately.</span></label><label class="check"><input type="checkbox" name="telegram"${checked(state.deliveryChannels.personalTelegram)}${disabled(channelDisabled || !telegramConnected)} />Personal Telegram <span>${telegramConnected ? "Connected locally. Save this watch to enable alerts." : state.telegramStatus?.kind === "pairing" || state.telegramStatus?.kind === "token_saved" ? "Send a test notification above to enable Telegram alerts." : "Connect your bot above to enable Telegram alerts."}</span></label></div></fieldset>
         ${creationPrerequisite}<div class="button-row"><button type="submit"${disabled(!interactive || !controller.capabilities.catalog || !canSubmitStores)}>${state.editingWatchId ? "Save changes" : "Create watch"}</button></div>
       </form></section>
     <section class="section-block" aria-labelledby="watches-title"><div class="section-heading"><div><p class="eyebrow">Saved locally</p><h2 id="watches-title">Your watches</h2></div>${state.snapshot?.watches.length ? '<button type="button" class="tertiary danger" data-action="reset">Clear local monitor data</button>' : ""}</div>${state.snapshot ? (state.snapshot.watches.length ? state.snapshot.watches.map((watch) => renderWatchCard(state, watch)).join("") : '<p class="empty">No watches yet. Select a phone and public stores above.</p>') : '<p class="empty">Monitor state is unavailable until the background connection is wired.</p>'}</section>
@@ -757,8 +759,9 @@ export function mountLocalMonitorUi(
             ? successMessage === "Personal Telegram settings updated locally."
               ? "Telegram is connected and saved with no expiry. You can now select Personal Telegram for this watch or send a test notification."
               : successMessage
-            : telegramStatus.kind === "pairing"
-              ? "Bot verified. Finish setup below: open Telegram, tap Start, then check the connection."
+            : telegramStatus.kind === "pairing" ||
+                telegramStatus.kind === "token_saved"
+              ? "Token saved. Send a test notification to finish connecting."
               : "Personal Telegram settings updated locally.",
         messageKind: "info",
       };
@@ -810,7 +813,7 @@ export function mountLocalMonitorUi(
     // One bounded check on return; no background polling or automatic messages.
     void runTelegram(async () => {
       const latest = await telegram.status();
-      return latest.kind === "pairing" ? telegram.confirmPairing() : latest;
+      return latest;
     });
   };
 
@@ -1075,7 +1078,7 @@ export function mountLocalMonitorUi(
               state = {
                 ...state,
                 message:
-                  "Paste the complete bot token into the Bot token field, then select Connect Telegram. The field is cleared after each attempt.",
+                  "Paste the complete bot token into the Bot token field, then select Save token. The field is cleared after each attempt.",
                 messageKind: "error",
               };
               rerender();
@@ -1098,8 +1101,6 @@ export function mountLocalMonitorUi(
               return telegram.startPairing(token);
             });
           }
-          if (action === "telegram-confirm" && telegram)
-            runTelegram(() => telegram.confirmPairing());
           if (action === "telegram-test" && telegram)
             void runTelegram(
               () => telegram.sendTest(),
