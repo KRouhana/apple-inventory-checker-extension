@@ -1970,3 +1970,89 @@ describe("LocalMonitorEngine", () => {
     expect((await read).watches.map((entry) => entry.id)).toEqual(["watch-1"]);
   });
 });
+
+describe("new watch first check", () => {
+  it("checks immediately and waits two minutes from the response before checking again", async () => {
+    const clock = new FakeClock();
+    const subject = makeEngine({
+      clock,
+      fetch: async (request) => {
+        clock.advance(10_000);
+        return pickupResponse(request);
+      },
+    });
+    await subject.engine.addWatch(watch());
+    expect(subject.fetchCalls()).toBe(0);
+    await subject.engine.checkNewWatch("watch-1");
+    expect(subject.fetchCalls()).toBe(1);
+    expect((await subject.engine.getSnapshot()).items[0]?.lastCheckedAt).toBe(
+      new Date(START + 10_000).toISOString(),
+    );
+    expect(subject.scheduler.periodic.at(-1)).toBe(120);
+    clock.advance(119_999);
+    await subject.engine.wake();
+    expect(subject.fetchCalls()).toBe(1);
+    clock.advance(1);
+    await subject.engine.wake();
+    expect(subject.fetchCalls()).toBe(2);
+  });
+
+  it("queues behind an active check without overlapping requests or rechecking other watches", async () => {
+    let release!: () => void;
+    let started!: () => void;
+    const startedPromise = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const blocked = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const subject = makeEngine({
+      fetch: async (request) => {
+        started();
+        await blocked;
+        return pickupResponse(request);
+      },
+    });
+    await subject.engine.addWatch(watch());
+    const first = subject.engine.checkNow(["watch-1"]);
+    await startedPromise;
+    await subject.engine.addWatch(watch({ id: "watch-2" }));
+    const next = subject.engine.checkNewWatch("watch-2");
+    expect(subject.fetchCalls()).toBe(1);
+    release();
+    await Promise.all([first, next]);
+    expect(subject.fetchCalls()).toBe(2);
+    expect(
+      (await subject.engine.getSnapshot()).items
+        .map((item) => item.watchId)
+        .sort(),
+    ).toEqual(["watch-1", "watch-2"]);
+    await subject.engine.checkNewWatch("watch-2");
+    expect(subject.fetchCalls()).toBe(2);
+  });
+
+  it("does not check paused or deleted watches", async () => {
+    const subject = makeEngine({});
+    await subject.engine.addWatch(watch({ enabled: false }));
+    await subject.engine.checkNewWatch("watch-1");
+    await subject.engine.checkNewWatch("deleted-watch");
+    expect(subject.fetchCalls()).toBe(0);
+  });
+
+  it("keeps a saved watch and respects host backoff after a failed first check", async () => {
+    const subject = makeEngine({
+      fetch: async () => ({ httpStatus: 429, body: {}, retryAfterMs: 300_000 }),
+    });
+    await subject.engine.addWatch(watch());
+    await subject.engine.checkNewWatch("watch-1");
+    await subject.engine.addWatch(watch({ id: "watch-2" }));
+    expect((await subject.engine.checkNewWatch("watch-2")).kind).toBe(
+      "host_backoff",
+    );
+    expect(subject.fetchCalls()).toBe(1);
+    const snapshot = await subject.engine.getSnapshot();
+    expect(snapshot.watches).toHaveLength(2);
+    expect(snapshot.items[0]?.status).toBe("unknown");
+    expect(subject.scheduler.oneShot.at(-1)).toBe(300_000);
+  });
+});

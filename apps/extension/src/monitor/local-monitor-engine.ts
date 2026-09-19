@@ -406,6 +406,18 @@ export class LocalMonitorEngine {
     return this.runCycle(new Set(watchIds));
   }
 
+  /** Finish an enabled watch's first check without racing an active cycle. */
+  public async checkNewWatch(id: string): Promise<LocalMonitorCycleReport> {
+    await this.ensureSnapshot();
+    while (this.cycle) await this.cycle;
+    const snapshot = this.currentSnapshot();
+    const watch = snapshot.watches.find((entry) => entry.id === id);
+    // Another cycle may already have checked it while this request waited.
+    if (!watch?.enabled || snapshot.items.some((item) => item.watchId === id))
+      return this.emptyReport("completed");
+    return this.checkNow([id]);
+  }
+
   public async getSnapshot(): Promise<LocalMonitorSnapshot> {
     await this.ensureSnapshot();
     // Reading state must never contact Apple, but a newly bundled/replaced
@@ -567,8 +579,8 @@ export class LocalMonitorEngine {
     const unsupportedWatchIds = new Set<string>();
     try {
       await this.ensureSnapshot();
-      const nowMs = this.options.clock.now();
-      const now = isoAt(nowMs);
+      let nowMs = this.options.clock.now();
+      let now = isoAt(nowMs);
       expiredDeliveryEvents += this.reconcileDurableDelivery(nowMs, now);
 
       const snapshot = this.currentSnapshot();
@@ -683,6 +695,8 @@ export class LocalMonitorEngine {
             location: batch.location,
             skus,
           });
+          nowMs = this.options.clock.now();
+          now = isoAt(nowMs);
           let identityMismatch: PickupParseDiagnostic["identityMismatch"] =
             null;
           const parsed =

@@ -694,9 +694,17 @@ export function mountLocalMonitorUi(
     rerender();
   };
 
-  const run = async (operation: () => Promise<unknown>) => {
+  const run = async (
+    operation: () => Promise<unknown>,
+    pendingMessage = "",
+  ) => {
     if (!controller.capabilities.monitor || state.busy) return;
-    state = { ...state, busy: true, message: "" };
+    state = {
+      ...state,
+      busy: true,
+      message: pendingMessage,
+      messageKind: "info",
+    };
     rerender();
     try {
       const result = await operation();
@@ -921,28 +929,31 @@ export function mountLocalMonitorUi(
           rerender();
           return;
         }
-        void run(async () => {
-          const result = await dispatchMonitorCommand(
-            controller,
-            old
-              ? { type: "replace-watch", watch: built.watch }
-              : { type: "add-watch", watch: built.watch },
-          );
-          state = {
-            ...state,
-            editingWatchId: null,
-            selection: { ...EMPTY_WATCH_SELECTION },
-            lookupStores: [],
-            hasLookupResult: false,
-            savedStoreNumbers: [],
-            selectedStoreNumbers: [],
-            pollAnchorStoreNumber: "",
-            locationInput: "",
-            pollIntervalSec: DEFAULT_UI_POLL_INTERVAL_SEC,
-            deliveryChannels: { ...DEFAULT_CHANNELS },
-          };
-          return result;
-        });
+        void run(
+          async () => {
+            const result = await dispatchMonitorCommand(
+              controller,
+              old
+                ? { type: "replace-watch", watch: built.watch }
+                : { type: "add-watch", watch: built.watch },
+            );
+            state = {
+              ...state,
+              editingWatchId: null,
+              selection: { ...EMPTY_WATCH_SELECTION },
+              lookupStores: [],
+              hasLookupResult: false,
+              savedStoreNumbers: [],
+              selectedStoreNumbers: [],
+              pollAnchorStoreNumber: "",
+              locationInput: "",
+              pollIntervalSec: DEFAULT_UI_POLL_INTERVAL_SEC,
+              deliveryChannels: { ...DEFAULT_CHANNELS },
+            };
+            return result;
+          },
+          old ? "Saving changes…" : "Saving watch and checking availability…",
+        );
       });
     root
       .querySelectorAll<HTMLSelectElement>(
