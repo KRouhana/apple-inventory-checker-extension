@@ -28,8 +28,8 @@ function titleCase(value: string): string {
 
 /**
  * Accepts only the literal Apple selected-device routes reviewed for the
- * active iPhone 17 and iPhone 18 families. This is syntax validation only;
- * callers must still bind the path to an exact catalog SKU/title.
+ * iPhone 17, iPhone 18 Pro, and iPhone Duo families. This is syntax validation
+ * only; callers must still bind the path to an exact catalog SKU/title.
  */
 export function parseAppleSelectedDevicePath(
   market: AppleSelectedDeviceMarket,
