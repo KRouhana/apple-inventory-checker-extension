@@ -22,7 +22,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "zod": "4.5.4"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "typescript": "5.9.3",

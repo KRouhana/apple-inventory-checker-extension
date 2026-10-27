@@ -13,8 +13,9 @@
     "check": "pnpm --dir packages/core check && pnpm --dir apps/extension check",
     "test": "pnpm --dir packages/core test && pnpm --dir apps/extension test",
     "catalog:check": "pnpm --dir packages/core build && node scripts/catalog/validate-portable-catalog.mjs",
+    "site:check": "node --test scripts/site/check-site.test.mjs",
     "format:check": "prettier --check .",
-    "ci": "pnpm catalog:check && pnpm format:check && pnpm check && pnpm test && pnpm package"
+    "ci": "pnpm catalog:check && pnpm site:check && pnpm format:check && pnpm check && pnpm test && pnpm package"
   },
   "devDependencies": {
     "@types/node": "24.13.4",
