@@ -18,6 +18,16 @@ const duoSection = html.match(
 const duoText =
   duoSection?.[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") ?? "";
 
+test("homepage hero features iPhone Duo rather than iPhone 18 Pro", () => {
+  const hero = html.match(
+    /<section\b[^>]*aria-labelledby="hero-title"[^>]*>([\s\S]*?)<\/section>/,
+  );
+  assert.ok(hero, "Homepage hero must exist");
+  assert.match(hero[1], /<h3>iPhone Duo<\/h3>/);
+  assert.doesNotMatch(hero[1], /iPhone 18 Pro/);
+  assert.match(hero[1], /Example watch · Illustrative availability/);
+});
+
 test("Duo support is linked from coverage and expanded by default", () => {
   assert.ok(duoSection, "Duo support section must exist");
   assert.match(duoSection[0], /^<details\b[^>]*\bopen(?:\s|>)/);
