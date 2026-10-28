@@ -253,31 +253,22 @@ h1 em {
 }
 .watch-card {
   display: grid;
-  grid-template-columns: 34px 1fr;
-  column-gap: 11px;
+  grid-template-columns: minmax(0, 1fr);
   padding: 18px;
   background: white;
   border: 1px solid #dce5da;
   border-radius: 12px;
 }
-.phone-swatch {
-  height: 43px;
-  width: 27px;
-  background: #867c73;
-  border-radius: 6px;
-  border: 1px solid #69625c;
-  padding: 3px;
-  align-self: center;
+.watch-product-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: center;
 }
-.phone-swatch div {
-  width: 13px;
-  height: 13px;
-  background:
-    radial-gradient(circle at 27% 28%, #262b26 0 2px, transparent 2.4px),
-    radial-gradient(circle at 76% 50%, #262b26 0 2px, transparent 2.4px),
-    radial-gradient(circle at 27% 76%, #262b26 0 2px, transparent 2.4px);
-  border-radius: 4px;
-  background-color: #a59a8f;
+.watch-product {
+  margin-top: 8px;
 }
 .watch-product h3 {
   font-size: 16px;
@@ -851,8 +842,5 @@ code {
   .button,
   .demo-button {
     border: 1px solid ButtonText;
-  }
-  .phone-swatch {
-    border: 1px solid CanvasText;
   }
 }
